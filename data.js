@@ -2,6 +2,41 @@ const fs = require('fs');
 const { config } = require('./config/config.js')
 const readline = require('node:readline');
 const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
+const replaceInFile = require('replace-in-file/lib/replace-in-file');
+const data = {
+  files: {
+      main_txt: './tmp/test.txt',
+      scores: './tmp/scores.txt',
+      status: './tmp/status.txt',
+      goldeneggs: './tmp/goldeneggs.txt',
+      stats: './tmp/stats' ,
+      king_ids: './tmp/king_ids',
+      cooldown: `./tmp/event/cooldown`,
+      splatfest: `./tmp/event/splatfest`,
+  },
+  emoji: {
+    sm_states: [
+      "<:Salmometer0:1144024236114071615>",
+      "<:Salmometer1:1144024234264367155>",
+      "<:Salmometer2:1144024233706532954>",
+      "<:Salmometer3:1144024232502755368>",
+      "<:Salmometer4:1144024229650645224>",
+      "<:Salmometer5:1144024231542280342>"
+    ],   
+    splatemoji: "<:splat:1143639892061069444>",
+    goldeggemoji: "<:goldenegg:1143640722701041704>",
+    powereggemoji: "<:poweregg:1144835063905787964>",
+    staff: "<:staff:1144840625406083123>",
+  },
+  shop_items: [
+    {name: "Booyah Bomb", value: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, discription: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
+    {name:"Reef Slider", value: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, discription: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
+    {name:"Killer Wail 5.1", value: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, discription: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
+    {name: "Wave Breaker", value: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, discription: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
+  ],
+  status_lines: 263,
+}
+
 const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
@@ -84,43 +119,44 @@ async function txtlookup(path, value) {
     });
     })
   }
-  const data = {
-    files: {
-        main_txt: './tmp/test.txt',
-        scores: './tmp/scores.txt',
-        status: './tmp/status.txt',
-        goldeneggs: './tmp/goldeneggs.txt',
-        stats: './tmp/stats' ,
-        king_ids: './tmp/king_ids',
-        cooldown: `./tmp/event/cooldown`,
-        splatfest: `./tmp/event/splatfest`,
-    },
-    emoji: {
-      sm_states: [
-        "<:Salmometer0:1144024236114071615>",
-        "<:Salmometer1:1144024234264367155>",
-        "<:Salmometer2:1144024233706532954>",
-        "<:Salmometer3:1144024232502755368>",
-        "<:Salmometer4:1144024229650645224>",
-        "<:Salmometer5:1144024231542280342>"
-      ],   
-      splatemoji: "<:splat:1143639892061069444>",
-      goldeggemoji: "<:goldenegg:1143640722701041704>",
-      powereggemoji: "<:poweregg:1144835063905787964>",
-      staff: "<:staff:1144840625406083123>",
-    },
-    shop_items: [
-      {name: "Booyah Bomb", use: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, discription: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
-      {name:"Reef Slider", use: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, discription: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
-      {name:"Killer Wail 5.1", use: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, discription: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
-      {name: "Wave Breaker", use: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, discription: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
-    ],
-    status_lines: 263
+
+
+  function getNthValue(message, n){
+    return message.options._hoistedOptions[n].value
+  }
+
+  async function replacefile(location, old, replaced){
+    var options = {
+      files: location,
+      from: old,
+      to: replaced,
+    };
+    replaceInFile.sync(options)
+  }
+
+  async function buyResponce(id, aviable, newgoldegg, item, message){
+    goldeggemoji = data.emoji.goldeggemoji
+    await replacefile(data.files.goldeneggs, `${id} - ${aviable}`, `${id} - ${newgoldegg}`).then(async () => {
+    fs.readFile(item.file, async function (err, data) {
+      if (err) throw err;
+      if(data.indexOf(id) < 0){
+        fs.appendFileSync(item.file, `\n${id} - ${1*item.mult}`)
+        message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **${1*item.mult}** ${item.name} `)
+      }else {
+        await txtlookup(item.file, id).then(async (old) => {
+          await replacefile(item.file, `${id} - ${old}`, `${id} - ${Number(old) + 1}`)
+          message.reply(`You now have ${goldeggemoji} **${newgoldegg}** and **${Number(old) + 1*item.mult}** ${item.name}`)
+        })  
+      }
+    })
+  })
   }
 
   const functions = {
     txtlookup: txtlookup,
-    getusername: getusername
+    getusername: getusername,
+    getNthValue: getNthValue,
+    buyResponce: buyResponce,
   }
   client.login(config.discord.token);
   module.exports = { data, functions, client }

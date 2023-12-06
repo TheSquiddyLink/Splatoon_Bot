@@ -1,6 +1,7 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { data, functions } = require('./data.js')
 
+
 const commands = [
   {
     name: 'ping',
@@ -43,15 +44,53 @@ const commands = [
     name: 'shop',
     description: 'Show all shop items',
     command: shop
+  },
+  {
+    name: 'buy',
+    description: 'buy an item from the shop',
+    options: [
+      {
+        name: 'item',
+        description: 'item you wish to buy',
+        type: ApplicationCommandOptionType.String,
+        choices: data.shop_items
+      }
+    ],
+    command: buy
   }
 ];
+
+async function buy(message){
+  let value = functions.getNthValue(message, 0)
+  let id = message.user.id
+  let shop_items = data.shop_items
+
+  let goldeggemoji = data.emoji.goldeggemoji
+  for(i in shop_items){
+    if(shop_items[i].value === value){
+      let item = shop_items[i]
+      await functions.txtlookup(data.files.goldeneggs, id).then(async (aviable) => {
+        var price = item.cost
+      if (Number(aviable) >= price) {
+        newgoldegg = aviable - price
+        console.log(item)
+        functions.buyResponce(id, aviable, newgoldegg, item, message)
+        
+      } else {
+        message.reply(`You do not have enough to buy this item, you have ${goldeggemoji} ${aviable}/${price}`)
+      }
+    })  
+    }
+  }
+
+}
 
 async function shop(message){
   let shopmessage = ""
   let shop_items = data.shop_items
   for (i in shop_items) {
     console.log(i)
-    shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].use}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
+    shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].value}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
   }
   await functions.txtlookup(data.files.goldeneggs, message.user.id).then((value) => {
     message.reply({
