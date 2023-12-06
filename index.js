@@ -1,5 +1,5 @@
 const { profile, count } = require('console');
-const token = require('./config/config.js')
+const { config } = require('./config/config.js')
 const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
 const fs = require('fs');
 const readline = require('node:readline');
@@ -1020,6 +1020,6 @@ client.on("messageCreate", async message => {
   }
 });
 
-client.login(token);
+client.login(config.token);
 
 
