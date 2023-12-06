@@ -14,7 +14,7 @@ async function spawnsalmon(type, message){
         console.log("Spawning King")
           for(i in salmon.king_salmon) {
             if (kingrand >= salmon.king_salmon[i].chance) {
-              message.channel.send({
+              message.reply({
                             
                 "channel_id": `${message.channel.id}`,
                 "content": "",
@@ -96,7 +96,7 @@ async function spawnsalmon(type, message){
                                   } else {
                                     await functions.replacefile(main_txt, `salmon_meter - ${salmon_meter}`, `salmon_meter - ${salmon_meter2}`)
                                   }
-                                  message.channel.send({
+                                  message.reply({
                                     
                                     "channel_id": `${message.channel.id}`,
                                     "content": "",
@@ -149,7 +149,7 @@ async function spawnsalmon(type, message){
                           }
                         }
                       } else {
-                        message.channel.send("Unable to spawn salmon, on cooldown")
+                        message.reply("Unable to spawn salmon, on cooldown")
                       }
                     }) 
                   } else {
@@ -293,7 +293,7 @@ async function spawnsalmon(type, message){
                   console.log(`ID List: ${id_list}`)
                   mode(id_list).then(([id, num]) => {
                       var percent = ((num / id_list.length) * 100).toFixed(2)
-                      message.channel.send(`🥇 - <@${id}> (${percent}% of damage)`)
+                      message.reply(`🥇 - <@${id}> (${percent}% of damage)`)
                     scales.forEach(async function(scale, i) {
                       var value;
                       if (i === 0) {
