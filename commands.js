@@ -38,10 +38,46 @@ const commands = [
       }
     ],
     command: leaderboard
+  },
+  {
+    name: 'shop',
+    description: 'Show all shop items',
+    command: shop
   }
 ];
 
-
+async function shop(message){
+  let shopmessage = ""
+  let shop_items = data.shop_items
+  for (i in shop_items) {
+    console.log(i)
+    shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].use}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
+  }
+  await functions.txtlookup(data.files.goldeneggs, message.user.id).then((value) => {
+    message.reply({
+      "channel_id": `${message.channel.id}`,
+      "content": "",
+      "tts": false,
+      "embeds": [
+        {
+          "type": "rich",
+          "title": `${data.emoji.staff} Welcome to the shop!`,
+          "description": `You currently have ${data.emoji.goldeggemoji} **${value}**`,
+          "color": 0x00FFFF,
+          "fields": [
+            {
+              "name": `Items:`,
+              "value": `${shopmessage}`
+            }
+          ],
+          "footer": {
+            "text": `Do !buy [#] to purchase an item`
+          }
+        }
+      ]
+    });
+  })
+}
 
 function leaderboard(message){
   let type = message.options._hoistedOptions[0].value
