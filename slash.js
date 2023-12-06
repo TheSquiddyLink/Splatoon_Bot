@@ -1,9 +1,12 @@
 const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
+const { functions } = require('./data.js')
 
 
 client.on('ready', async () => {
     console.log("Started")
+    functions.update_status()
+    functions.startReset()
    
 })
 

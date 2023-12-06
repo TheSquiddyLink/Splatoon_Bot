@@ -1,8 +1,8 @@
 lesser - none
 boss - none
 king - none
-health - 0
-salmon_meter - 17.08
+health - 4
+salmon_meter - 23.32
 reaction_only - false
 cooldown - false
 event_start - 
