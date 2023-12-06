@@ -1,16 +1,10 @@
-const { config } = require('./config/config.js')
+const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
-const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
-const client = new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
-    ]
-});
+
+
 client.on('ready', async () => {
     console.log("Started")
+   
 })
 
 function test(){
@@ -25,10 +19,14 @@ client.on('interactionCreate', (interaction) => {
         console.log(commands[i].name)
         if(commands[i].name === interaction.commandName){
             console.log("Found Command!")
-            commands[i].command(interaction)
+            if(commands[i].needclient){
+                commands[i].command(interaction, client)
+            } else{
+                commands[i].command(interaction)
+            }
+           
             break
         }
     }
 })
 
-client.login(config.discord.token);
