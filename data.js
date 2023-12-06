@@ -3,6 +3,9 @@ const { config } = require('./config/config.js')
 const readline = require('node:readline');
 const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
 const replaceInFile = require('replace-in-file/lib/replace-in-file');
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 const data = {
   files: {
       main_txt: './tmp/test.txt',
@@ -29,10 +32,9 @@ const data = {
     staff: "<:staff:1144840625406083123>",
   },
   shop_items: [
-    {name: "Booyah Bomb", value: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, description: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
-    {name:"Reef Slider", value: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, description: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
-    {name:"Killer Wail 5.1", value: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, description: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
-    {name: "Wave Breaker", value: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
+    {name: "Booyah Bomb", value: "BB", use_splat: true, damge: 999,  emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, description: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
+    {name:"Killer Wail 5.1", value: "KW", use_splat: true, damge: 2,  emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, description: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
+    {name: "Wave Breaker", value: "WB", use_splat: false, emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
   ],
   scales: [
     {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>",  file: './tmp/scales/bronze'},
@@ -65,6 +67,21 @@ const data = {
       {name: "Horrorboros", health: 15 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
     ]
   },
+  resetvars: [
+    {name: "lesser",value: "none"},
+    {name: "boss",value: "none"},
+    {name: "king",value: "none"},
+    {name: "health",value: "0"},
+    {name: "cooldown",value: "false"},
+  ],
+  sm_states: [
+    "<:Salmometer0:1144024236114071615>",
+    "<:Salmometer1:1144024234264367155>",
+    "<:Salmometer2:1144024233706532954>",
+    "<:Salmometer3:1144024232502755368>",
+    "<:Salmometer4:1144024229650645224>",
+    "<:Salmometer5:1144024231542280342>"
+  ],
   status_lines: 263,
 }
 
@@ -96,6 +113,10 @@ async function txtlookup(path, value) {
           return line2
         }
       } 
+  }
+
+  function removeitem(id, path, old){
+    replacefile(path, old, id)
   }
   async function scorestotuple(path) {
     const fileStream = fs.createReadStream(path);
@@ -149,6 +170,26 @@ async function txtlookup(path, value) {
   
     });
     })
+  }
+  async function addscales(count, value, scale, id_list){
+    while (count < value) {
+      var id_val = Math.floor(Math.random() * id_list.length);
+      console.log(`Added scale to ${id_list[id_val]}`);
+      var oldscale = await txtlookup(scale.file, id_val);
+      var data = await fs.promises.readFile(scale.file, 'utf8');
+  
+      if (data.indexOf(id_list[id_val]) < 0) {
+        console.log(`New: ${i}`);
+        fs.appendFileSync(scale.file, `\n${id_list[id_val]} - ${value}`);
+      } else {
+        var newscale = Number(oldscale) + 1;
+        console.log(`Replace: ${i}`);
+        var updatedData = data.replace(`${id_list[id_val]} - ${oldscale}`, `${id_list[id_val]} - ${newscale}`);
+        fs.writeFileSync(scale.file, updatedData, 'utf8');
+      }
+  
+      count++;
+    }
   }
   async function addstats(userid) {
     let stats = data.files.stats
@@ -261,12 +302,83 @@ async function txtlookup(path, value) {
   })
   }
 
+  async function setstatus(path, rand) {
+    const fileStream = fs.createReadStream(path);
+  
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    });
+    // Note: we use the crlfDelay option to recognize all instances of CR LF
+    // ('\r\n') in input.txt as a single line break.
+    rand = Math.random() * (data.status_lines - 0) + 0;
+    rand = Math.round(rand)
+    console.log(rand)
+    var count2 = 0
+    for await (const line2 of rl) {
+      if (count2 === rand) {
+        return line2
+        
+      } else {
+        count2 = count2 + 1
+      }
+    }
+  }
+  
+  async function update_status(){
+    console.log("Stats")
+    await setstatus(data.files.status).then(async (value) => {
+      title = value.split(" SPLT274 ")[0]
+      artist = value.split(" SPLT274 ")[1]
+      album = value.split(" SPLT274 ")[2]
+      duration = value.split(" SPLT274 ")[3]
+      console.log(duration)
+      duration = Number(duration) * 1000
+      console.log(duration)
+      console.log(value.replace("SPLT274", " - ").replace("SPLT274", " - ").replace("SPLT274", " - "))
+      client.user.setPresence({ activities: [{ name: `${title}`, state: `${artist} ${album}`, type: 2 }]})
+      await delay(duration);
+      update_status()
+    })
+  }
+
+  async function startReset(){
+    console.log("Start Reset")
+    let resetvars = data.resetvars
+    let main_txt = data.files.main_txt
+    for (i in resetvars) {
+        console.log(`${i}`)
+        await txtlookup(main_txt, resetvars[i].name).then((old) => {
+        console.log(`thing: ${resetvars[i].name} - ${old}`)
+        replacefile(main_txt, `${resetvars[i].name} - ${old}`, `${resetvars[i].name} - ${resetvars[i].value}`)
+        })
+    }
+    let king_ids = data.files.king_ids
+    fs.readFile(king_ids, async function(err, data) {
+        replacefile(king_ids, data, "")
+    })
+    let cooldown = data.files.cooldown
+    fs.readFile(cooldown, async function(err, data) {
+        replacefile(cooldown, data, "")
+    })
+  }
+
+
   const functions = {
     txtlookup: txtlookup,
     getusername: getusername,
     getNthValue: getNthValue,
     buyResponce: buyResponce,
     statsResponce: statsResponce,
+    replacefile: replacefile,
+    update_status: update_status,
+    startReset: startReset
+  }
+
+  const optional = {
+    addstats: addstats,
+    addscales: addscales,
+    removeitem: removeitem,
   }
   client.login(config.discord.token);
-  module.exports = { data, functions, client }
+  module.exports = { data, functions, client, delay, optional}

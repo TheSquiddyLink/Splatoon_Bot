@@ -1,7 +1,15 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { data, functions } = require('./data.js')
+const { spawnsalmon, splatSalmon } = require('./salmon.js');
 
-
+const all_salmon = []
+const types = ["lesser_salmon", "boss_salmon", "king_salmon"]
+for(i in data.salmon){
+  let type = data.salmon[i]
+  for(j in type){
+    all_salmon.push({name: type[j].name, value: type[j].name})
+  }
+}
 const commands = [
   {
     name: 'ping',
@@ -90,9 +98,42 @@ const commands = [
       }
     ],
     command: stats
-  }
+  },
+  {
+    name: "spawn",
+    description: "manual overide to spawn salmon",
+    command: manual_spawn
+  },
+  {
+    name: "splat",
+    description: "splat the current salmon",
+    options: [
+      {
+        name: "salmon",
+        value: "salmon",
+        description: "The name of the salmon",
+        type: ApplicationCommandOptionType.String,
+        choices: all_salmon,
+        required: true,
+      },
+      {
+        name: "item",
+        value: "item",
+        description: "optional: Use an item",
+        type: ApplicationCommandOptionType.String,
+        choices: data.shop_items.filter(item => item.use_splat)
+      }
+    ],
+    command: splat
+  },
 ];
 
+function splat(message){
+  splatSalmon(message)
+}
+function manual_spawn(message){
+  spawnsalmon("lesser", message)
+}
 function stats(message){
   value = functions.getNthValue(message, 0)
   functions.statsResponce(message, message.user.id)
@@ -249,6 +290,11 @@ function pong(message){
   message.reply("Ping!")
 }
 
+function dynamicCommand(typeOption){
+  let type = data.salmon[typeOption]
+  commands.options.find(opt => opt.name === 'salmon').choices = salmonChoices;
+
+}
 async function event(message){
   await functions.txtlookup(data.files.main_txt, "event_start").then(async(start) => {
     await functions.txtlookup(data.files.main_txt, "event_name").then(async(event) => {
@@ -274,4 +320,4 @@ async function event(message){
     })
   })
 }
-module.exports = [ commands ];
+module.exports = [ commands, dynamicCommand ];
