@@ -29,11 +29,42 @@ const data = {
     staff: "<:staff:1144840625406083123>",
   },
   shop_items: [
-    {name: "Booyah Bomb", value: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, discription: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
-    {name:"Reef Slider", value: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, discription: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
-    {name:"Killer Wail 5.1", value: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, discription: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
-    {name: "Wave Breaker", value: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, discription: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
+    {name: "Booyah Bomb", value: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, description: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
+    {name:"Reef Slider", value: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, description: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
+    {name:"Killer Wail 5.1", value: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, description: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
+    {name: "Wave Breaker", value: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
   ],
+  scales: [
+    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>",  file: './tmp/scales/bronze'},
+    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>",  file: './tmp/scales/silver'},
+    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>",  file: './tmp/scales/gold'},
+  ],
+
+  salmon: {
+    lesser_salmon: [
+      {name: "Smallfry", health: 1, chance: 50, hitbox: 40, points: 1, emoji: "<:smallfry:1142682637018873876>", image: "https://media.discordapp.net/attachments/1116032437588340826/1143654495520313384/120px-S3_Smallfry_icon.png?width=240&height=240"},  
+      {name: "Chum", health: 2, chance: 35, hitbox: 50, points: 2, emoji: "<:chum:1143398328571281509>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143654353014636624/120px-S3_Chum_icon.png?width=240&height=240"},  
+      {name: "Cohock", health: 4, chance: 0, hitbox: 60, points: 4, emoji: "<:cohock:1143398327065509948>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143654352691658792/500.png?width=884&height=884"},  
+    ],
+    boss_salmon: [
+      {name: "Big Shot", health: 8, chance: 91, timer: 0, bomb: false, hitbox: 90, points: 5, bonus: 0, emoji: "<:bigshot:1143636605307994254>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651512917164143/bigshot.png?width=300&height=300"},
+      {name: "Drizzler", health: 4 , chance: 82, timer: 0, bomb: false, hitbox: 80, points: 5, bonus: 0, emoji: "<:drizzler:1143636603206635571>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651512594223284/drizzler.png?width=300&height=300"},
+      {name: "Fish Stick", health: 3 , chance: 73, timer: 0, bomb: false, hitbox: 45, points: 5, bonus: 0,emoji: "<:fishstick:1143636601939955832>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651512199950346/fishstick.png?width=300&height=300"},
+      {name: "Flipper Flopper", health: 1 , chance: 64, timer: 10, bomb: false, hitbox: 85, points: 5, bonus: 0,emoji: "<:flipperflopper:1143636599742148788>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651511944085564/flipperflopper.png?width=300&height=300"},
+      {name: "Flyfish", health: 2 , chance: 55, timer: 10, bomb: true, hitbox: 40, points: 5, bonus: 0,emoji: "<:flyfish:1143636597766631527>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651463420194816/flyfish.png?width=300&height=300"},
+      {name: "Maws", health: 1 , chance: 46, timer: 10, bomb: true, hitbox: 80, points: 5, bonus: 0,emoji: "<:maws:1143636596495753316>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651463155957900/maws.png?width=300&height=300"},
+      {name: "Scrapper", health: 4 , chance: 37, timer: 0, bomb: false, hitbox: 90, points: 5, bonus: 0,emoji: "<:scrapper:1143636592871870475>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651462900088976/scrapper.png?width=300&height=300"},
+      {name: "Slammin Lid", health: 2 , chance: 28, timer: 0, bomb: false, hitbox: 90, points: 5, bonus: 0,emoji: "<:slamminlid:1143636590854418543>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651462627471554/slamminlid.png?width=300&height=300"},
+      {name: "Steel Eel", health: 3 , chance: 19, timer: 0, bomb: false, hitbox: 60, points: 5, bonus: 0,emoji: "<:steeleel:1143636589218648145>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651462342262914/steeleel.png?width=300&height=300"},
+      {name: "Steelhead", health: 3 , chance: 10, timer: 10, bomb: false, hitbox: 70, points: 5, bonus: 0,emoji: "<:steelhead:1143636587838709780>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651462090588331/steelhead.png?width=300&height=300"},
+      {name: "Stinger", health: 4 , chance: 2, timer: 10, bomb: false, hitbox: 85, points: 5, bonus: 0,emoji: "<:stinger:1143636585754132630>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143651461776027731/stinger.png?width=300&height=300"},
+      {name: "Goldie", health: 4 , chance: 1, timer: 10, bomb: false, hitbox: 85, points: 5, bonus: 2,emoji: "<:goldie:1143398987479646308>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143654352255459348/120px-S3_Goldie_icon.png?width=240&height=240"},
+    ],
+    king_salmon: [
+      {name: "Cohozuna", health: 20 , chance: 50, hitbox: 90, points: 100, emoji: "<:cohozuna:1145205344621039677>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514388369418/S3_Cohozuna_icon.png?width=800&height=800"},
+      {name: "Horrorboros", health: 15 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
+    ]
+  },
   status_lines: 263,
 }
 
@@ -119,10 +150,88 @@ async function txtlookup(path, value) {
     });
     })
   }
+  async function addstats(userid) {
+    let stats = data.files.stats
+    return new Promise((resolve, reject) => {
+      fs.readFile(stats, async function (err, data) {
+      if (err) reject(err);
+      if(data.indexOf(userid) < 0){
+        fs.appendFile(stats, `\n${userid} - 0| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | `, (err) => {
+        if (err) reject(err);
+        resolve();
+        });
+        } else {
+      resolve();
+        }
+      });
+    });
+  }
 
+  function statsResponce(message, id){
+    let stats = data.files.stats
+    let salmon = data.salmon
+    fs.readFile(stats, function (err, data) {
+      if (err) throw err;
+        addstats(id).then(() => {
+        txtlookup(stats, id).then(async (userstats) => {
+          var newstats = userstats.split(" | ")
+          var statmessage = ""
+          var count = 0
+          var type = ""
+          for( i in newstats) {
+            if(i == 17) {
+              break
+            }
+            if(i == 15){
+              count = 0
+              statmessage = `${statmessage}═════════════\n` 
+            }
+            if(i == 3) {
+              count = 0
+              statmessage = `${statmessage}═════════════\n` 
+            }
+            if(i >= 3) {
+              if (i >= 15){
+                console.log("King!")
+                type = salmon.king_salmon
+              } else
+                type = salmon.boss_salmon
+            } else{
+              type =  salmon.lesser_salmon 
+          }
+            statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
+            count = count + 1
+          }
+          await client.users.fetch(id).then(async (profilename) => {
+            console.log(profilename)
+            message.reply({
+              "channel_id": `${message.channel.id}`,
+              "content": "",
+              "tts": false,
+              "embeds": [
+                {
+                  "type": "rich",
+                  "title": `Here is ${profilename.username}'s stats`,
+                  "description": `${statmessage}`,
+                  "color": 0x00FFFF
+                }
+              ]
+            })
+          })
+        })
+      })
+    })
+  }
 
   function getNthValue(message, n){
-    return message.options._hoistedOptions[n].value
+    try{
+      return message.options._hoistedOptions[n].value
+    }
+    catch(err) {
+      console.log(err.message)
+      return message.user.id
+    }
+    
   }
 
   async function replacefile(location, old, replaced){
@@ -157,6 +266,7 @@ async function txtlookup(path, value) {
     getusername: getusername,
     getNthValue: getNthValue,
     buyResponce: buyResponce,
+    statsResponce: statsResponce,
   }
   client.login(config.discord.token);
   module.exports = { data, functions, client }

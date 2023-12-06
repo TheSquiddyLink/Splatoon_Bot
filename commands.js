@@ -53,12 +53,113 @@ const commands = [
         name: 'item',
         description: 'item you wish to buy',
         type: ApplicationCommandOptionType.String,
-        choices: data.shop_items
+        choices: data.shop_items,
+        required: true
       }
     ],
     command: buy
+  },
+  {
+    name: 'desc',
+    description: 'Get a description of an item',
+    options: [
+      {
+        name: 'item',
+        description: 'item you wish to buy',
+        type: ApplicationCommandOptionType.String,
+        choices: data.shop_items,
+        required: true
+      }
+    ],
+    command: desc
+  },
+  {
+    name: "inv",
+    description: "View your invintory",
+    command: inv
+  },
+  {
+    name: 'stats',
+    description: 'view yours, or a differnt users stats',
+    options: [
+      {
+        name: "user",
+        description: "The users data you wish to see",
+        value: "user",
+        type: ApplicationCommandOptionType.User
+      }
+    ],
+    command: stats
   }
 ];
+
+function stats(message){
+  value = functions.getNthValue(message, 0)
+  functions.statsResponce(message, message.user.id)
+
+}
+
+async function inv(message){
+  let inv = ""
+  let shop_items = data.shop_items
+    for(i in shop_items){
+      await functions.txtlookup(shop_items[i].file, message.user.id).then((amount) => {
+        if(amount === undefined){
+          amount = 0
+        }
+        inv = `${inv}${shop_items[i].emoji} ${shop_items[i].name} | ${shop_items[i].value} | **${amount}**\n`
+      })
+    }
+    var inv_scales = ""
+    let scales = data.scales
+    for(i in scales){
+      await functions.txtlookup(scales[i].file, message.user.id).then((amount) => {
+        inv_scales = `${inv_scales}${scales[i].emoji} ${scales[i].name} | **${amount}**\n`
+      })
+    }
+    var goldeggammt = 0
+    await functions.txtlookup(data.files.goldeneggs, message.user.id).then((amount) => {
+      goldeggammt = amount
+    })
+    message.reply({
+      "channel_id": `${message.channel.id}`,
+      "content": "",
+      "tts": false,
+      "embeds": [
+        {
+          "type": "rich",
+          "title": `Your Inventory`,
+          "description": `This shows you your items and scales ammount`,
+          "color": 0x00FFFF,
+          "fields": [
+            {
+              "name": `Items:`,
+              "value": `${inv}`
+            },
+            {
+              "name": `Scales:`,
+              "value": `${inv_scales}`
+            },
+            {
+              "name": `Golden Eggs`,
+              "value": `${data.emoji.goldeggemoji} ${goldeggammt}`
+            }
+          ],
+          "footer": {
+            "text": `Do !splat [salmon] item [CMD] to use an item`
+          }
+        }
+      ]
+    });
+}
+function desc(message){
+  let value = functions.getNthValue(message, 0)
+  for(i in data.shop_items){
+    if(value === data.shop_items[i].value){
+      message.reply(`### ${data.shop_items[i].name} \n${data.shop_items[i].description}`)
+    }
+  }
+}
 
 async function buy(message){
   let value = functions.getNthValue(message, 0)
