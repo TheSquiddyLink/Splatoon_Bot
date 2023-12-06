@@ -95,6 +95,26 @@ async function txtlookup(path, value) {
         cooldown: `./tmp/event/cooldown`,
         splatfest: `./tmp/event/splatfest`,
     },
+    emoji: {
+      sm_states: [
+        "<:Salmometer0:1144024236114071615>",
+        "<:Salmometer1:1144024234264367155>",
+        "<:Salmometer2:1144024233706532954>",
+        "<:Salmometer3:1144024232502755368>",
+        "<:Salmometer4:1144024229650645224>",
+        "<:Salmometer5:1144024231542280342>"
+      ],   
+      splatemoji: "<:splat:1143639892061069444>",
+      goldeggemoji: "<:goldenegg:1143640722701041704>",
+      powereggemoji: "<:poweregg:1144835063905787964>",
+      staff: "<:staff:1144840625406083123>",
+    },
+    shop_items: [
+      {name: "Booyah Bomb", use: "BB", emoji: "<:booyahbomb:1144839446278189137>", cost: 10, mult: 1, discription: "Can one shot any salmon (Dose not work on King)", file: './tmp/shop_items/OneHitKO' },
+      {name:"Reef Slider", use: "RS", emoji: "<:reefslider:1144839763011063808>", cost: 1, mult: 4, discription: "Splat the salmon without needing to type it's name!", file: './tmp/shop_items/fastsplat'},
+      {name:"Killer Wail 5.1", use: "KW", emoji: "<:killerwail:1144840004963663993>", cost: 3, mult: 1, discription: "Deal twice the damage! (Dose not work on miss)", file: './tmp/shop_items/doubledamage'},
+      {name: "Wave Breaker", use: "WB", emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, discription: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
+    ],
     status_lines: 263
   }
 
