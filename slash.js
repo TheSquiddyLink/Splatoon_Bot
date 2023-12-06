@@ -7,10 +7,6 @@ client.on('ready', async () => {
    
 })
 
-function test(){
-    console.log("Testing")
-}
-
 client.on('interactionCreate', (interaction) => {
     if(!interaction.isChatInputCommand()) return;
     console.log(commands)
