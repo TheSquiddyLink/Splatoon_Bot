@@ -3,6 +3,18 @@ const fs = require('fs');
 const readline = require('node:readline');
 const replaceInFile = require('replace-in-file/lib/replace-in-file');
 
+function spawnRandom(message){
+  var bosschance = Math.random()
+    bosschance =  bosschance * 100
+    bosschance = Math.round(bosschance)
+    console.log(bosschance)
+    if (bosschance <= 50){
+      var lesser_chance = 0
+      spawnsalmon("lesser", message)
+    } else {
+      spawnsalmon("boss", message)
+    }
+}
 async function spawnsalmon(type, message){
     let main_txt = data.files.main_txt
     let salmon = data.salmon
@@ -385,4 +397,4 @@ async function spawnsalmon(type, message){
 
   }
 
-  module.exports = { spawnsalmon, splatSalmon }
+  module.exports = { spawnsalmon, spawnRandom, splatSalmon }

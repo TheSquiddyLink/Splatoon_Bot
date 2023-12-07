@@ -531,7 +531,7 @@ client.on("messageCreate", async message => {
       })
     })
 
-    var msgrand = Math.random()
+  var msgrand = Math.random()
   msgrand = msgrand * 100
   msgrand = Math.round(msgrand)
   console.log(msgrand)

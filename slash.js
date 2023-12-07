@@ -1,6 +1,7 @@
 const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
 const { functions } = require('./data.js')
+const { spawnRandom } = require('./salmon.js')
 
 
 client.on('ready', async () => {
@@ -8,6 +9,17 @@ client.on('ready', async () => {
     functions.update_status()
     functions.startReset()
    
+})
+client.on("messageCreate", async message => {
+    if (!message.author.bot){
+        var msgrand = Math.random()
+        msgrand = msgrand * 100
+        msgrand = Math.round(msgrand)
+        console.log(msgrand)
+        if(msgrand >= 95){
+            spawnRandom(message)
+        }
+    }
 })
 
 client.on('interactionCreate', (interaction) => {

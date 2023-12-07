@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { data, functions } = require('./data.js')
-const { spawnsalmon, splatSalmon } = require('./salmon.js');
+const { spawnRandom, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
 const types = ["lesser_salmon", "boss_salmon", "king_salmon"]
@@ -100,11 +100,6 @@ const commands = [
     command: stats
   },
   {
-    name: "spawn",
-    description: "manual overide to spawn salmon",
-    command: manual_spawn
-  },
-  {
     name: "splat",
     description: "splat the current salmon",
     options: [
@@ -126,13 +121,40 @@ const commands = [
     ],
     command: splat
   },
+  {
+    name: "item",
+    value: "item",
+    description: "Use the specified item",
+    options: [
+      {
+        name: "item",
+        value: "item_value",
+        description: "Specified item to use",
+        type: ApplicationCommandOptionType.String,
+        choices: data.shop_items.filter(item => !item.use_splat)
+      }
+    ],
+    command: item
+  },
+
 ];
+
+function item(message){
+  let items = data.shop_items.filter(item => !item.use_splat)
+  for(i in items){
+    if(items[i].value === functions.getNthValue(message, 0)){
+        items[i].command
+        console.log(items[i].value)
+        if(items[i].value === "WB"){
+          spawnRandom(message)
+        }
+    }
+  }
+
+}
 
 function splat(message){
   splatSalmon(message)
-}
-function manual_spawn(message){
-  spawnsalmon("lesser", message)
 }
 function stats(message){
   value = functions.getNthValue(message, 0)
