@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { config } = require('./config/config.js')
 const readline = require('node:readline');
-const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
+const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin, underscore } = require('discord.js');
 const replaceInFile = require('replace-in-file/lib/replace-in-file');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -84,20 +84,25 @@ const data = {
     "<:Salmometer5:1144024231542280342>"
   ],
   status_lines: 263,
-}
 
-function readData() {
-  try {
-    const rawData = fs.readFileSync(data.files.json, 'utf-8');
-    return JSON.parse(rawData);
-  } catch (error) {
-    // If the file doesn't exist or there's an error reading it, return an empty object
-    throw error
+  json: {
+    global: "./global_data.json",
+    user:  "./user_data.json"
   }
 }
 
-function writeData(value) {
-  fs.writeFileSync(data.files.json, JSON.stringify(value, null, 2), 'utf-8');
+function readData(file) {
+  try {
+    const rawData = fs.readFileSync(file, 'utf-8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    // If the file doesn't exist or there's an error reading it, return an empty object
+    return {}
+  }
+}
+
+function writeData(file, value) {
+  fs.writeFileSync(file, JSON.stringify(value, null, 2), 'utf-8');
 }
 
 const client = new Client({
@@ -206,6 +211,39 @@ async function txtlookup(path, value) {
       count++;
     }
   }
+
+  async function addStats(userid){
+    client.users.fetch(userid).then(async user => {
+      if(!user.bot){
+        let rawData = await readData(data.json.user)
+        console.log(rawData)
+        let statsData = rawData.stats
+        let syntax = statsData.syntax
+        console.log(statsData.users)
+        if(statsData.users[userid] === undefined){
+          let newUserData = []
+          for(i in syntax){
+            newUserData[i] = 0
+          }
+          console.log("New Data:")
+          console.log(newUserData)
+          statsData.users[userid] = newUserData
+          console.log(statsData.users)
+
+          rawData.stats.users = statsData.users
+
+          console.log("Final Data:")
+
+          writeData(data.json.user, rawData)
+
+        }
+          
+      } else {
+        console.log("User is a bot")
+      }
+    })
+  }
+  /* 
   async function addstats(userid) {
     let stats = data.files.stats
     return new Promise((resolve, reject) => {
@@ -222,13 +260,14 @@ async function txtlookup(path, value) {
       });
     });
   }
+  */
 
   function statsResponce(message, id){
     let stats = data.files.stats
     let salmon = data.salmon
     fs.readFile(stats, function (err, data) {
       if (err) throw err;
-        addstats(id).then(() => {
+      addStats(id).then(() => {
         txtlookup(stats, id).then(async (userstats) => {
           var newstats = userstats.split(" | ")
           var statmessage = ""
@@ -393,7 +432,7 @@ async function txtlookup(path, value) {
   }
 
   const optional = {
-    addstats: addstats,
+    addStats: addStats,
     addscales: addscales,
     removeitem: removeitem,
   }

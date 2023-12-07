@@ -169,8 +169,8 @@ function splat(message){
   splatSalmon(message)
 }
 function stats(message){
-  value = functions.getNthValue(message, 0)
-  functions.statsResponce(message, message.user.id)
+  let value = functions.getNthValue(message, 0)
+  functions.statsResponce(message, value)
 
 }
 
