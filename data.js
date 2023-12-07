@@ -16,6 +16,7 @@ const data = {
       king_ids: './tmp/king_ids',
       cooldown: `./tmp/event/cooldown`,
       splatfest: `./tmp/event/splatfest`,
+      json: `./data.json`
   },
   emoji: {
     sm_states: [
@@ -83,6 +84,20 @@ const data = {
     "<:Salmometer5:1144024231542280342>"
   ],
   status_lines: 263,
+}
+
+function readData() {
+  try {
+    const rawData = fs.readFileSync(data.files.json, 'utf-8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    // If the file doesn't exist or there's an error reading it, return an empty object
+    throw error
+  }
+}
+
+function writeData(value) {
+  fs.writeFileSync(data.files.json, JSON.stringify(value, null, 2), 'utf-8');
 }
 
 const client = new Client({
@@ -370,6 +385,8 @@ async function txtlookup(path, value) {
     getNthValue: getNthValue,
     buyResponce: buyResponce,
     statsResponce: statsResponce,
+    readData: readData,
+    writeData: writeData,
     replacefile: replacefile,
     update_status: update_status,
     startReset: startReset

@@ -136,8 +136,20 @@ const commands = [
     ],
     command: item
   },
+  {
+    name: "json_test",
+    value: "json_test",
+    description: "Test for reading & writing JSON",
+    command: jsonTest
+  }
 
 ];
+
+function jsonTest(message){
+  let raw_data = functions.readData()
+  raw_data.main.salmon.lesser = "0"
+  functions.writeData(raw_data)
+}
 
 function item(message){
   let items = data.shop_items.filter(item => !item.use_splat)
