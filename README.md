@@ -1,1 +1,1 @@
-# Testing
+# Splatoon Discord Bot
