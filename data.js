@@ -213,35 +213,29 @@ async function txtlookup(path, value) {
   }
 
   async function addStats(userid){
-    client.users.fetch(userid).then(async user => {
-      if(!user.bot){
-        let rawData = await readData(data.json.user)
-        console.log(rawData)
-        let statsData = rawData.stats
-        let syntax = statsData.syntax
-        console.log(statsData.users)
-        if(statsData.users[userid] === undefined){
-          let newUserData = []
-          for(i in syntax){
-            newUserData[i] = 0
-          }
-          console.log("New Data:")
-          console.log(newUserData)
-          statsData.users[userid] = newUserData
-          console.log(statsData.users)
-
-          rawData.stats.users = statsData.users
-
-          console.log("Final Data:")
-
-          writeData(data.json.user, rawData)
-
-        }
-          
-      } else {
-        console.log("User is a bot")
+    let rawData = await readData(data.json.user)
+    console.log(rawData)
+    let statsData = rawData.stats
+    let syntax = statsData.syntax
+    console.log(statsData.users)
+    if(statsData.users[userid] === undefined){
+      let newUserData = []
+      for(i in syntax){
+        newUserData[i] = 0
       }
-    })
+      console.log("New Data:")
+      console.log(newUserData)
+      statsData.users[userid] = newUserData
+      console.log(statsData.users)
+
+      rawData.stats.users = statsData.users
+
+      console.log("Final Data:")
+
+      writeData(data.json.user, rawData)
+
+    }
+
   }
   /* 
   async function addstats(userid) {
@@ -263,59 +257,66 @@ async function txtlookup(path, value) {
   */
 
   function statsResponce(message, id){
-    let stats = data.files.stats
-    let salmon = data.salmon
-    fs.readFile(stats, function (err, data) {
-      if (err) throw err;
-      addStats(id).then(() => {
-        txtlookup(stats, id).then(async (userstats) => {
-          var newstats = userstats.split(" | ")
-          var statmessage = ""
-          var count = 0
-          var type = ""
-          for( i in newstats) {
-            if(i == 17) {
-              break
-            }
-            if(i == 15){
-              count = 0
-              statmessage = `${statmessage}═════════════\n` 
-            }
-            if(i == 3) {
-              count = 0
-              statmessage = `${statmessage}═════════════\n` 
-            }
-            if(i >= 3) {
-              if (i >= 15){
-                console.log("King!")
-                type = salmon.king_salmon
-              } else
-                type = salmon.boss_salmon
-            } else{
-              type =  salmon.lesser_salmon 
-          }
-            statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
-            count = count + 1
-          }
-          await client.users.fetch(id).then(async (profilename) => {
-            console.log(profilename)
-            message.reply({
-              "channel_id": `${message.channel.id}`,
-              "content": "",
-              "tts": false,
-              "embeds": [
-                {
-                  "type": "rich",
-                  "title": `Here is ${profilename.username}'s stats`,
-                  "description": `${statmessage}`,
-                  "color": 0x00FFFF
+    client.users.fetch(id).then(user => {
+      if(!user.bot){
+        let stats = data.files.stats
+        let salmon = data.salmon
+        fs.readFile(stats, function (err, data) {
+          if (err) throw err;
+          addStats(id).then(() => {
+            txtlookup(stats, id).then(async (userstats) => {
+              var newstats = userstats.split(" | ")
+              var statmessage = ""
+              var count = 0
+              var type = ""
+              for( i in newstats) {
+                if(i == 17) {
+                  break
                 }
-              ]
+                if(i == 15){
+                  count = 0
+                  statmessage = `${statmessage}═════════════\n` 
+                }
+                if(i == 3) {
+                  count = 0
+                  statmessage = `${statmessage}═════════════\n` 
+                }
+                if(i >= 3) {
+                  if (i >= 15){
+                    console.log("King!")
+                    type = salmon.king_salmon
+                  } else
+                    type = salmon.boss_salmon
+                } else{
+                  type =  salmon.lesser_salmon 
+              }
+                statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
+                count = count + 1
+              }
+              await client.users.fetch(id).then(async (profilename) => {
+                console.log(profilename)
+                message.reply({
+                  "channel_id": `${message.channel.id}`,
+                  "content": "",
+                  "tts": false,
+                  "embeds": [
+                    {
+                      "type": "rich",
+                      "title": `Here is ${profilename.username}'s stats`,
+                      "description": `${statmessage}`,
+                      "color": 0x00FFFF
+                    }
+                  ]
+                })
+              })
             })
           })
         })
-      })
+      } else {
+        message.reply("User provided is a bot")
+      }
     })
+    
   }
 
   function getNthValue(message, n){

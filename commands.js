@@ -169,16 +169,8 @@ function splat(message){
   splatSalmon(message)
 }
 function stats(message){
-  
   let value = functions.getNthValue(message, 0)
-  client.users.fetch(value).then(user => {
-    if(!user.bot){
-      functions.statsResponce(message, value)
-    } else {
-      message.reply("")
-    }
-  })
-
+  functions.statsResponce(message, value)
 
 }
 
