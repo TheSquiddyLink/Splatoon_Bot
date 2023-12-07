@@ -64,8 +64,8 @@ const data = {
       {name: "Goldie", health: 4 , chance: 1, timer: 10, bomb: false, hitbox: 85, points: 5, bonus: 2,emoji: "<:goldie:1143398987479646308>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143654352255459348/120px-S3_Goldie_icon.png?width=240&height=240"},
     ],
     king_salmon: [
-      {name: "Cohozuna", health: 20 , chance: 50, hitbox: 90, points: 100, emoji: "<:cohozuna:1145205344621039677>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514388369418/S3_Cohozuna_icon.png?width=800&height=800"},
-      {name: "Horrorboros", health: 15 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
+      {name: "Cohozuna", health: 2 , chance: 50, hitbox: 90, points: 100, emoji: "<:cohozuna:1145205344621039677>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514388369418/S3_Cohozuna_icon.png?width=800&height=800"},
+      {name: "Horrorboros", health: 2 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
     ]
   },
   resetvars: [
@@ -89,6 +89,28 @@ const data = {
     global: "./global_data.json",
     user:  "./user_data.json"
   }
+}
+async function mode(array)
+{
+    if(array.length == 0)
+        return null;
+    var modeMap = {};
+    var maxEl = array[0], maxCount = 1;
+    for(var i = 0; i < array.length; i++)
+    {
+        var el = array[i];
+        if(modeMap[el] == null)
+            modeMap[el] = 1;
+        else
+            modeMap[el]++;  
+        if(modeMap[el] > maxCount)
+        {
+            maxEl = el;
+            maxCount = modeMap[el];
+        }
+    }
+    console.log(`${maxEl}, ${maxCount}`)
+    return [maxEl, maxCount];
 }
 
 function readData(file) {
@@ -449,6 +471,7 @@ async function txtlookup(path, value) {
     addStats: addStats,
     addscales: addscales,
     removeitem: removeitem,
+    mode: mode,
   }
   client.login(config.discord.token);
   module.exports = { data, functions, client, delay, optional}

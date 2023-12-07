@@ -1,3 +1,4 @@
+const { underscore } = require('discord.js');
 const { data, functions, delay, optional } = require('./data.js')
 const fs = require('fs');
 const readline = require('node:readline');
@@ -194,7 +195,6 @@ async function spawnsalmon(type, message){
     let goldeneggs = data.files.goldeneggs
     let splatemoji = data.emoji.splatemoji
     await functions.txtlookup(main_txt, "lesser").then(async (current) => {
-      console.log("AAA")
       console.log(current)
 
       if (current === "none") {
@@ -281,7 +281,6 @@ async function spawnsalmon(type, message){
                 var newscore = Number(userscore) + salmon[current].points + goldeggammt 
                 var newgoldegg = Number(usergoldeggs) + goldeggammt 
                 console.log(`${userid} - ${newscore}`)
-                functions.replacefile(scores, `${userid} - ${userscore}`, `${userid} - ${newscore}`)
                 functions.replacefile(goldeneggs, `${userid} - ${usergoldeggs}`, `${userid} - ${newgoldegg}`)
                 
                 if(type === "king"){
@@ -302,13 +301,13 @@ async function spawnsalmon(type, message){
                     }
                     count++
                   }
-                  var id_list = await data.readData(data.json.global)
+                  var id_list = await functions.readData(data.json.global)
                   id_list = id_list.king_ids
                   console.log(`ID List: ${id_list}`)
-                  mode(id_list).then(([id, num]) => {
+                  optional.mode(id_list).then(([id, num]) => {
                       var percent = ((num / id_list.length) * 100).toFixed(2)
                       message.reply(`🥇 - <@${id}> (${percent}% of damage)`)
-                    scales.forEach(async function(scale, i) {
+                    data.scales.forEach(async function(scale, i) {
                       var value;
                       if (i === 0) {
                         value = bronze;
@@ -318,31 +317,38 @@ async function spawnsalmon(type, message){
                         value = gold;
                       }
                         await optional.addscales(value, scale, id_list).then(() => {
-                          fs.readFile(king_ids, async function(err, data) {
-                            functions.replacefile(king_ids, data, "")
-                          })
+                          let rawData = functions.readData(data.json.global)
+                          rawData.king_ids = []
+                          functions.writeData(data.json.global, rawData)
                         })
                       
                     }); 
                   })
                   
                 }
-                fs.readFile(scores, async function (err, data) {
-                  if (err) throw err;
-                  if(data.indexOf(message.user.id) < 0){
-                    fs.appendFileSync(scores, `\n${message.user.id} - ${salmon[current].points}`)
-                    message.reply(`You have been added with a score of ${salmon[current].points}!`)
-                  } else
-                  var boss_msg = ""
-                  if(type === "boss") {
-                    boss_msg = `\nYou found ${goldeggammt} golden eggs ${goldeggemoji} (+${goldeggammt * 2} points)`
-                  } else if (type === "king") {
-                    boss_msg = `\nYou got some scales! (Note: Scales are split between all players who attacked the king, the more you attack the more scales you can get) \n${scales[0].emoji} ${bronze}, ${scales[1].emoji} ${silver} ${scales[2].emoji} ${gold}`
-                    var count = 0
-                  }
-                  
-                  message.reply(`You splatted a ${salmon[current].name} ${splatemoji}  ${salmon[current].emoji} ${boss_msg}\nYou now have ${Number(userscore)} points`)
-                })
+                let rawData = await functions.readData(data.json.user)
+                let all_scores = rawData.scores
+
+                console.log("Points" + salmon[current].points)
+                console.log(all_scores[message.user.id])
+                if(all_scores[message.user.id] === undefined){
+                  all_scores[message.user.id] = salmon[current].points
+                  message.reply(`You have been added with a score of ${salmon[current].points}!`)
+                } else {
+                  all_scores[message.user.id] = all_scores[message.user.id] + salmon[current].points
+                }
+                rawData.scores = all_scores
+
+                functions.writeData(data.json.user, rawData)
+                var boss_msg = ""
+                if(type === "boss") {
+                  boss_msg = `\nYou found ${goldeggammt} golden eggs ${goldeggemoji} (+${goldeggammt * 2} points)`
+                } else if (type === "king") {
+                  boss_msg = `\nYou got some scales! (Note: Scales are split between all players who attacked the king, the more you attack the more scales you can get) \n${scales[0].emoji} ${bronze}, ${scales[1].emoji} ${silver} ${scales[2].emoji} ${gold}`
+                  var count = 0
+                }
+                
+                message.reply(`You splatted a ${salmon[current].name} ${splatemoji}  ${salmon[current].emoji} ${boss_msg}\nYou now have ${Number(userscore)} points`)
                 fs.readFile(goldeneggs, async function (err, data) {
                   if (err) throw err;
                   if(data.indexOf(message.user.id) < 0){
