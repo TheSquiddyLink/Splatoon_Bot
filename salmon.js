@@ -194,6 +194,7 @@ async function spawnsalmon(type, message){
     let goldeneggs = data.files.goldeneggs
     let splatemoji = data.emoji.splatemoji
     await functions.txtlookup(main_txt, "lesser").then(async (current) => {
+      console.log("AAA")
       console.log(current)
 
       if (current === "none") {
@@ -301,7 +302,8 @@ async function spawnsalmon(type, message){
                     }
                     count++
                   }
-                  var id_list = await idtoarray(king_ids);
+                  var id_list = await data.readData(data.json.global)
+                  id_list = id_list.king_ids
                   console.log(`ID List: ${id_list}`)
                   mode(id_list).then(([id, num]) => {
                       var percent = ((num / id_list.length) * 100).toFixed(2)
@@ -315,12 +317,11 @@ async function spawnsalmon(type, message){
                       } else {
                         value = gold;
                       }
-                      var count = 0;
-                      await optional.addscales(count, value, scale, id_list).then(() => {
-                        fs.readFile(king_ids, async function(err, data) {
-                          functions.replacefile(king_ids, data, "")
+                        await optional.addscales(value, scale, id_list).then(() => {
+                          fs.readFile(king_ids, async function(err, data) {
+                            functions.replacefile(king_ids, data, "")
+                          })
                         })
-                      })
                       
                     }); 
                   })
@@ -349,7 +350,7 @@ async function spawnsalmon(type, message){
                     message.reply(`You have been added with a a Golden Egg ammount of ${goldeggammt}!`)
                   }
                 })
-                  optional.addstats(message.user.id).then(async () => {
+                  optional.addStats(message.user.id).then(async () => {
                   var oldstats = await functions.txtlookup(stats, message.user.id)
                   console.log(oldstats)
                   var splitstats = oldstats.split(' | ')
@@ -381,9 +382,9 @@ async function spawnsalmon(type, message){
               } else
               message.reply(`You hit it! ${splatemoji} But it still has ${health}/${salmon[current].health} health left`)
               if(type === "king") {
-                fs.appendFile(king_ids, `${message.user.id}\n`, function(err) {
-                  if (err) throw err;
-                });
+                rawData = await functions.readData(data.json.global)
+                rawData.king_ids.push(message.user.id)
+                functions.writeData(data.json.global, rawData)
               }
               functions.replacefile(main_txt, `health - ${health + 1}`, `health - ${health}`)
             })

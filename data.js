@@ -38,9 +38,9 @@ const data = {
     {name: "Wave Breaker", value: "WB", use_splat: false, emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
   ],
   scales: [
-    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>",  file: './tmp/scales/bronze'},
-    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>",  file: './tmp/scales/silver'},
-    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>",  file: './tmp/scales/gold'},
+    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>"},
+    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>"},
+    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>"},
   ],
 
   salmon: {
@@ -135,6 +135,7 @@ async function txtlookup(path, value) {
       } 
   }
 
+
   function removeitem(id, path, old){
     replacefile(path, old, id)
   }
@@ -191,11 +192,22 @@ async function txtlookup(path, value) {
     });
     })
   }
+  async function addscales(type, id_list){
+    let raw_data = readData(data.json.user)
+    let user_scales = raw_data.scales
+    for(i in id_list){
+      console.log(id_list)  
+    }
+
+  }
+  /*
   async function addscales(count, value, scale, id_list){
     while (count < value) {
       var id_val = Math.floor(Math.random() * id_list.length);
       console.log(`Added scale to ${id_list[id_val]}`);
-      var oldscale = await txtlookup(scale.file, id_val);
+      // var oldscale = await txtlookup(scale.file, id_val);
+      let rawData = await readData(data.json.user)
+      let oldscale = rawData.scales[] 
       var data = await fs.promises.readFile(scale.file, 'utf8');
   
       if (data.indexOf(id_list[id_val]) < 0) {
@@ -211,6 +223,7 @@ async function txtlookup(path, value) {
       count++;
     }
   }
+  */
 
   async function addStats(userid){
     let rawData = await readData(data.json.user)

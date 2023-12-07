@@ -5,14 +5,18 @@
     "king": "none"
   },
   "health": 0,
-  "salmon_meter": 28.31,
+  "salmon_meter": 100,
   "reaction_only": false,
   "cooldown": false,
   "event": {
-      "event_start": "", 
-      "event_end": "", 
-      "event_name": "", 
-      "event_disc": ""
+    "event_start": "",
+    "event_end": "",
+    "event_name": "",
+    "event_disc": ""
   },
-  "king_ids": []
+  "king_ids": [
+    "453300005487509514",
+    "453300005487509514",
+    "453300005487509514"
+  ]
 }
