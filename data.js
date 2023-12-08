@@ -75,6 +75,14 @@ const data = {
     {name: "health",value: "0"},
     {name: "cooldown",value: "false"},
   ],
+
+  resetvarsJson: [
+    {name: "lesser", parent: "salmon", value: "none"},
+    {name: "boss", parent: "salmon", value: "none"},
+    {name: "king", parent: "salmon", value: "none"},
+    {name: "health", value: 0},
+    {name: "cooldown", value: false},
+  ],
   sm_states: [
     "<:Salmometer0:1144024236114071615>",
     "<:Salmometer1:1144024234264367155>",
@@ -436,6 +444,21 @@ async function txtlookup(path, value) {
     console.log("Start Reset")
     let resetvars = data.resetvars
     let main_txt = data.files.main_txt
+
+    let globalData = await readData(data.json.global)
+    console.log(globalData)
+    for(i in data.resetvarsJson){
+      console.log(data.resetvarsJson[i].parent)
+      if(data.resetvarsJson[i].parent){
+        console.log("Using Parent")
+        globalData[data.resetvarsJson[i].parent][data.resetvarsJson[i].name] = data.resetvarsJson[i].value 
+      } else {
+        globalData[data.resetvarsJson[i].name] = data.resetvarsJson[i].value
+      }
+    }
+    console.log(globalData)
+    writeData(data.json.global, globalData)
+
     for (i in resetvars) {
         console.log(`${i}`)
         await txtlookup(main_txt, resetvars[i].name).then((old) => {

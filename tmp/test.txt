@@ -4,7 +4,7 @@ king - none
 health - 0
 salmon_meter - 15.05
 reaction_only - false
-cooldown - true
+cooldown - false
 event_start - 
 event_end - 
 event_name - 
