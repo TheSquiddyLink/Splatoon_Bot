@@ -16,7 +16,6 @@ function spawnRandom(message){
 async function spawnsalmon(type, message){
     let main_txt = data.files.main_txt
     let salmon = data.salmon
-    let userData = await functions.readData(data.json.user)
     let globalData = await functions.readData(data.json.global)
 
     let salmon_meter = globalData.salmon_meter
