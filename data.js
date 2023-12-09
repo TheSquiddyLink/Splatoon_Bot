@@ -82,6 +82,8 @@ const data = {
     {name: "king", parent: "salmon", value: "none"},
     {name: "health", value: 0},
     {name: "cooldown", value: false},
+    {name: "king_ids", value: []},
+    {name: "cooldown", parent: "event", value: []}
   ],
   sm_states: [
     "<:Salmometer0:1144024236114071615>",

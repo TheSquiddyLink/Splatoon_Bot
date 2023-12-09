@@ -12,7 +12,9 @@
     "event_start": "",
     "event_end": "",
     "event_name": "",
-    "event_disc": ""
+    "event_disc": "",
+    "cooldown": [],
+    "splatfest": {}
   },
   "king_ids": []
 }
