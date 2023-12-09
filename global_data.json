@@ -7,7 +7,7 @@
   "health": 0,
   "salmon_meter": 100,
   "reaction_only": false,
-  "cooldown": true,
+  "cooldown": false,
   "event": {
     "event_start": "",
     "event_end": "",

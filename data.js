@@ -300,15 +300,12 @@ async function txtlookup(path, value) {
   */
 
   function statsResponce(message, id){
+    userData = readData(data.json.user)
     client.users.fetch(id).then(user => {
       if(!user.bot){
-        let stats = data.files.stats
         let salmon = data.salmon
-        fs.readFile(stats, function (err, data) {
-          if (err) throw err;
-          addStats(id).then(() => {
-            txtlookup(stats, id).then(async (userstats) => {
-              var newstats = userstats.split(" | ")
+          addStats(id).then(async () => {
+              let newstats = userData.stats.users[id]
               var statmessage = ""
               var count = 0
               var type = ""
@@ -352,9 +349,7 @@ async function txtlookup(path, value) {
                   ]
                 })
               })
-            })
           })
-        })
       } else {
         message.reply("User provided is a bot")
       }
