@@ -240,22 +240,22 @@ async function buy(message){
   let value = functions.getNthValue(message, 0)
   let id = message.user.id
   let shop_items = data.shop_items
+  let userData = functions.readData(data.json.user)
 
   let goldeggemoji = data.emoji.goldeggemoji
   for(i in shop_items){
     if(shop_items[i].value === value){
+      let aviable = userData.goldeneggs[id]
       let item = shop_items[i]
-      await functions.txtlookup(data.files.goldeneggs, id).then(async (aviable) => {
         var price = item.cost
       if (Number(aviable) >= price) {
         newgoldegg = aviable - price
         console.log(item)
-        functions.buyResponce(id, aviable, newgoldegg, item, message)
+        functions.buyResponce(id, newgoldegg, item, message)
         
       } else {
         message.reply(`You do not have enough to buy this item, you have ${goldeggemoji} ${aviable}/${price}`)
       }
-    })  
     }
   }
 

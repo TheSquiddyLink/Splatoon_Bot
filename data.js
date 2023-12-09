@@ -377,22 +377,24 @@ async function txtlookup(path, value) {
     replaceInFile.sync(options)
   }
 
-  async function buyResponce(id, aviable, newgoldegg, item, message){
+  async function buyResponce(id, newgoldegg, item, message){
+    console.log(item.value)
+    let userData = await readData(data.json.user)
     goldeggemoji = data.emoji.goldeggemoji
-    await replacefile(data.files.goldeneggs, `${id} - ${aviable}`, `${id} - ${newgoldegg}`).then(async () => {
-    fs.readFile(item.file, async function (err, data) {
-      if (err) throw err;
-      if(data.indexOf(id) < 0){
-        fs.appendFileSync(item.file, `\n${id} - ${1*item.mult}`)
-        message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **${1*item.mult}** ${item.name} `)
-      }else {
-        await txtlookup(item.file, id).then(async (old) => {
-          await replacefile(item.file, `${id} - ${old}`, `${id} - ${Number(old) + 1}`)
-          message.reply(`You now have ${goldeggemoji} **${newgoldegg}** and **${Number(old) + 1*item.mult}** ${item.name}`)
-        })  
-      }
-    })
-  })
+
+    userData.goldeneggs[id] = newgoldegg
+    let current = userData.shop_items[item.value][id]
+    if(userData.shop_items[item.value][id] === undefined){
+      userData.shop_items[item.value][id] = 1
+      current = 1
+    } else {
+      userData.shop_items[item.value][id] = userData.shop_items[item.value][id] + 1
+      current++
+    }
+
+    
+    message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${current})** ${item.name} `)
+    writeData(data.json.user, userData)
   }
 
   async function setstatus(path, rand) {
