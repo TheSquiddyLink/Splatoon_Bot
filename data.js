@@ -458,6 +458,7 @@ async function txtlookup(path, value) {
     console.log(globalData)
     writeData(data.json.global, globalData)
 
+    // Following code is for the outdated TXT files
     for (i in resetvars) {
         console.log(`${i}`)
         await txtlookup(main_txt, resetvars[i].name).then((old) => {
