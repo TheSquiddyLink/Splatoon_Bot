@@ -400,29 +400,6 @@ async function txtlookup(path, value) {
     message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${current})** ${item.name} `)
     writeData(data.json.user, userData)
   }
-
-  async function setstatus(path, rand) {
-    const fileStream = fs.createReadStream(path);
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-    rand = Math.random() * (data.status_lines - 0) + 0;
-    rand = Math.round(rand)
-    console.log(rand)
-    var count2 = 0
-    for await (const line2 of rl) {
-      if (count2 === rand) {
-        return line2
-        
-      } else {
-        count2 = count2 + 1
-      }
-    }
-  }
   
   async function update_status(){
     console.log("Update Status")
@@ -452,9 +429,6 @@ async function txtlookup(path, value) {
 
   async function startReset(){
     console.log("Start Reset")
-    let resetvars = data.resetvars
-    let main_txt = data.files.main_txt
-
     let globalData = await readData(data.json.global)
     console.log(globalData)
     for(i in data.resetvarsJson){
@@ -470,6 +444,8 @@ async function txtlookup(path, value) {
     writeData(data.json.global, globalData)
 
     // Following code is for the outdated TXT files
+    let resetvars = data.resetvars
+    let main_txt = data.files.main_txt
     for (i in resetvars) {
         console.log(`${i}`)
         await txtlookup(main_txt, resetvars[i].name).then((old) => {

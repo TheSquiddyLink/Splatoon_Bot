@@ -268,7 +268,8 @@ async function shop(message){
     console.log(i)
     shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].value}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
   }
-  await functions.txtlookup(data.files.goldeneggs, message.user.id).then((value) => {
+  
+  let value = await functions.readData(data.json.user).goldeneggs[message.user.id]
     message.reply({
       "channel_id": `${message.channel.id}`,
       "content": "",
@@ -291,7 +292,6 @@ async function shop(message){
         }
       ]
     });
-  })
 }
 
 function leaderboard(message){
