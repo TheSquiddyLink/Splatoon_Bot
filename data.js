@@ -3,6 +3,7 @@ const { config } = require('./config/config.js')
 const readline = require('node:readline');
 const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin, underscore } = require('discord.js');
 const replaceInFile = require('replace-in-file/lib/replace-in-file');
+const { title } = require('process');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -97,7 +98,8 @@ const data = {
 
   json: {
     global: "./global_data.json",
-    user:  "./user_data.json"
+    user:  "./user_data.json",
+    status: "./status.json"
   }
 }
 async function mode(array)
@@ -423,20 +425,29 @@ async function txtlookup(path, value) {
   }
   
   async function update_status(){
-    console.log("Stats")
-    await setstatus(data.files.status).then(async (value) => {
-      title = value.split(" SPLT274 ")[0]
-      artist = value.split(" SPLT274 ")[1]
-      album = value.split(" SPLT274 ")[2]
-      duration = value.split(" SPLT274 ")[3]
-      console.log(duration)
-      duration = Number(duration) * 1000
-      console.log(duration)
-      console.log(value.replace("SPLT274", " - ").replace("SPLT274", " - ").replace("SPLT274", " - "))
-      client.user.setPresence({ activities: [{ name: `${title}`, state: `${artist} ${album}`, type: 2 }]})
-      await delay(duration);
-      update_status()
-    })
+    console.log("Update Status")
+    let status = await readData(data.json.status)
+
+    let length = status.length
+    console.log
+
+    let rand = Math.random() * (length)
+    rand = rand.toFixed(0)
+    console.log(rand)
+
+    let value = status[rand]
+
+    let title = value.title
+    let artist = value.artist
+    let album = value.album
+    let duration = value.duration
+
+    console.log(duration)
+    duration = Number(duration) * 1000
+
+    client.user.setPresence({ activities: [{ name: `${title}`, state: `${artist} ${album}`, type: 2 }]})
+    await delay(duration);
+    update_status()
   }
 
   async function startReset(){
