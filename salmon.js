@@ -296,11 +296,11 @@ async function spawnsalmon(type, message){
                     data.scales.forEach(async function(scale, i) {
                       var value;
                       if (i === 0) {
-                        value = bronze;
+                        value = Bronze;
                       } else if (i === 1) {
-                        value = silver;
+                        value = Silver;
                       } else {
-                        value = gold;
+                        value = Gold;
                       }
                         await optional.addscales(value, scale, id_list).then(() => {
                           let rawData = functions.readData(data.json.global)
