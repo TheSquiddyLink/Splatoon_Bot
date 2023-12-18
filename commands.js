@@ -176,26 +176,25 @@ function stats(message){
 
 async function inv(message){
   let inv = ""
-  let shop_items = data.shop_items
-    for(i in shop_items){
-      await functions.txtlookup(shop_items[i].file, message.user.id).then((amount) => {
-        if(amount === undefined){
-          amount = 0
-        }
-        inv = `${inv}${shop_items[i].emoji} ${shop_items[i].name} | ${shop_items[i].value} | **${amount}**\n`
-      })
+  let all_items = data.shop_items
+  let userData = await functions.readData(data.json.user)
+
+  for(i in all_items){
+    let ammount = userData.shop_items[all_items[i].value][message.user.id]
+    if(ammount === undefined){
+      ammount = 0
     }
-    var inv_scales = ""
-    let scales = data.scales
-    for(i in scales){
-      await functions.txtlookup(scales[i].file, message.user.id).then((amount) => {
-        inv_scales = `${inv_scales}${scales[i].emoji} ${scales[i].name} | **${amount}**\n`
-      })
-    }
-    var goldeggammt = 0
-    await functions.txtlookup(data.files.goldeneggs, message.user.id).then((amount) => {
-      goldeggammt = amount
-    })
+    inv = `${inv}${all_items[i].emoji} ${all_items[i].name} | ${all_items[i].value} | **${ammount}**\n`
+  }
+
+  let goldeggammt = userData.goldeneggs[message.user.id]
+  
+  let inv_scales = ""
+  for(i in data.scales){
+    let ammount = userData.scales[data.scales[i].name][message.user.id]
+    inv_scales = `${inv_scales}${data.scales[i].emoji} ${data.scales[i].name} | **${ammount}**\n`
+  }
+
     message.reply({
       "channel_id": `${message.channel.id}`,
       "content": "",
