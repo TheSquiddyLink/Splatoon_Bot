@@ -329,28 +329,48 @@ function dynamicCommand(typeOption){
 
 }
 async function event(message){
-  await functions.txtlookup(data.files.main_txt, "event_start").then(async(start) => {
-    await functions.txtlookup(data.files.main_txt, "event_name").then(async(event) => {
-      now = Math.floor(new Date().getTime() / 1000)
-      console.log(`Now: ${now}`)
-      if (start === "none"){
-        message.reply("There are no upcoming events")
+  let globalData = await functions.readData(data.json.global)
+  let start = globalData.event.event_start
+  let end = globalData.event.event_end
+  let now = Math.floor(new Date().getTime() / 1000)
+  let event = globalData.event.event_name
+  let disc = globalData.event.event_disc
+
+  if (event === ""){
+    message.reply("There are no upcoming events")
+  } else {
+    if(start < now){
+      if(end > now){ 
+        message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
       } else {
-        await functions.txtlookup(data.files.main_txt, "event_disc").then(async(disc) => {
-          if (start < now){
-            await functions.txtlookup(data.files.main_txt, "event_end").then(async(end) => {
-              if(end > now){
-                message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
-              } else {
-                message.reply("There are no upcoming events")
-              }
-            })
-          }  else {
-            message.reply(`Next event is a ${event}, it starts in <t:${start}:R> on <t:${start}:f> \n Event Discription: \n ${disc}`)
-          }
-        })
+        message.reply(`The ${event} has ended!`)
       }
-    })
-  })
+    } else {
+      message.reply(`Next ${event} starts in <t:${start}:R> on <t:${start}:f>`)
+    }
+  }
+  // await functions.txtlookup(data.files.main_txt, "event_start").then(async(start) => {
+  //   await functions.txtlookup(data.files.main_txt, "event_name").then(async(event) => {
+  //     now = Math.floor(new Date().getTime() / 1000)
+  //     console.log(`Now: ${now}`)
+  //     if (start === "none"){
+  //       message.reply("There are no upcoming events")
+  //     } else {
+  //       await functions.txtlookup(data.files.main_txt, "event_disc").then(async(disc) => {
+  //         if (start < now){
+  //           await functions.txtlookup(data.files.main_txt, "event_end").then(async(end) => {
+  //             if(end > now){
+  //               message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
+  //             } else {
+  //               message.reply("There are no upcoming events")
+  //             }
+  //           })
+  //         }  else {
+  //           message.reply(`Next event is a ${event}, it starts in <t:${start}:R> on <t:${start}:f> \n Event Discription: \n ${disc}`)
+  //         }
+  //       })
+  //     }
+  //   })
+  // })
 }
 module.exports = [ commands, dynamicCommand ];
