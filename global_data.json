@@ -1,13 +1,13 @@
 {
   "salmon": {
-    "lesser": "none",
+    "lesser": "2",
     "boss": "none",
     "king": "none"
   },
-  "health": 0,
+  "health": 4,
   "salmon_meter": 100,
   "reaction_only": false,
-  "cooldown": false,
+  "cooldown": true,
   "event": {
     "event_start": "",
     "event_end": "",

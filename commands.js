@@ -152,13 +152,22 @@ function jsonTest(message){
 }
 
 function item(message){
+  let userData = functions.readData(data.json.user)
   let items = data.shop_items.filter(item => !item.use_splat)
   for(i in items){
     if(items[i].value === functions.getNthValue(message, 0)){
         items[i].command
         console.log(items[i].value)
         if(items[i].value === "WB"){
-          spawnRandom(message)
+          console.log(userData.shop_items.WB[message.user.id])
+          if(userData.shop_items.WB[message.user.id] >= 1){
+            spawnRandom(message)
+            userData.shop_items.WB[message.user.id] = userData.shop_items.WB[message.user.id] - 1
+            functions.writeData(data.json.user, userData)
+          } else {
+            message.reply("You don't have enough Wave Breakers")
+          }
+          
         }
     }
   }
@@ -349,28 +358,5 @@ async function event(message){
       message.reply(`Next ${event} starts in <t:${start}:R> on <t:${start}:f>`)
     }
   }
-  // await functions.txtlookup(data.files.main_txt, "event_start").then(async(start) => {
-  //   await functions.txtlookup(data.files.main_txt, "event_name").then(async(event) => {
-  //     now = Math.floor(new Date().getTime() / 1000)
-  //     console.log(`Now: ${now}`)
-  //     if (start === "none"){
-  //       message.reply("There are no upcoming events")
-  //     } else {
-  //       await functions.txtlookup(data.files.main_txt, "event_disc").then(async(disc) => {
-  //         if (start < now){
-  //           await functions.txtlookup(data.files.main_txt, "event_end").then(async(end) => {
-  //             if(end > now){
-  //               message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
-  //             } else {
-  //               message.reply("There are no upcoming events")
-  //             }
-  //           })
-  //         }  else {
-  //           message.reply(`Next event is a ${event}, it starts in <t:${start}:R> on <t:${start}:f> \n Event Discription: \n ${disc}`)
-  //         }
-  //       })
-  //     }
-  //   })
-  // })
 }
 module.exports = [ commands, dynamicCommand ];
