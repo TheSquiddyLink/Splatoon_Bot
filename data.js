@@ -173,33 +173,19 @@ async function txtlookup(path, value) {
   function removeitem(id, path, old){
     replacefile(path, old, id)
   }
-  async function scorestotuple(path) {
-    const fileStream = fs.createReadStream(path);
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-    var count = 0
-    var allscores = [{name: "0",score: "0"}]
-    for await (const line of rl) {
-      // Each line in input.txt will be successively available here as `line`.
-      var name2 =line.split(" - ")[0]
-      var score2 =line.split(" - ")[1]
-      console.log(name2)
-      console.log(score2)
-      allscores.push({name: name2,score: score2})
-      }
-    allscores.shift()
-    allscores.sort((a, b) => Number(b.score) - Number(a.score))
-    return allscores
-  } 
 
-  async function getusername(path){
-    return new Promise((resolve, reject) => {
-    scorestotuple(path).then(async (leaderboard) => {
+  async function getusername(type){
+    let userData = readData(data.json.user)
+
+    let arr = userData[type]
+
+    console.log(arr)
+
+    const leaderboard = Object.entries(arr)
+    leaderboard.sort((a, b) => b[1] - a[1])
+    console.log(leaderboard)
+
+    return new Promise(async (resolve, reject) => {
       console.log(leaderboard)
       var b = ""
       for (let i = 0; i < leaderboard.length; i++){
@@ -213,18 +199,17 @@ async function txtlookup(path, value) {
         } else {
           leader_emoji = `${i + 1}  -  `
         }
-          a = leaderboard[i].name
+          a = leaderboard[i][0]
           console.log(String(a))
           await client.users.fetch(a).then(async (profilename) => {
             console.log(profilename)
-            b = b.concat(`${leader_emoji} ${profilename.globalName} <${profilename.username}> - **${leaderboard[i].score}**\n`)
+            b = b.concat(`${leader_emoji} ${profilename.globalName} <${profilename.username}> - **${leaderboard[i][1]}**\n`)
         })
         }
         console.log(b)
         resolve(b);
   
     });
-    })
   }
   async function addscales(type, id_list){
     let raw_data = readData(data.json.user)
@@ -234,30 +219,6 @@ async function txtlookup(path, value) {
     }
 
   }
-  /*
-  async function addscales(count, value, scale, id_list){
-    while (count < value) {
-      var id_val = Math.floor(Math.random() * id_list.length);
-      console.log(`Added scale to ${id_list[id_val]}`);
-      // var oldscale = await txtlookup(scale.file, id_val);
-      let rawData = await readData(data.json.user)
-      let oldscale = rawData.scales[] 
-      var data = await fs.promises.readFile(scale.file, 'utf8');
-  
-      if (data.indexOf(id_list[id_val]) < 0) {
-        console.log(`New: ${i}`);
-        fs.appendFileSync(scale.file, `\n${id_list[id_val]} - ${value}`);
-      } else {
-        var newscale = Number(oldscale) + 1;
-        console.log(`Replace: ${i}`);
-        var updatedData = data.replace(`${id_list[id_val]} - ${oldscale}`, `${id_list[id_val]} - ${newscale}`);
-        fs.writeFileSync(scale.file, updatedData, 'utf8');
-      }
-  
-      count++;
-    }
-  }
-  */
 
   async function addStats(userid){
     let rawData = await readData(data.json.user)
@@ -284,24 +245,6 @@ async function txtlookup(path, value) {
     }
 
   }
-  /* 
-  async function addstats(userid) {
-    let stats = data.files.stats
-    return new Promise((resolve, reject) => {
-      fs.readFile(stats, async function (err, data) {
-      if (err) reject(err);
-      if(data.indexOf(userid) < 0){
-        fs.appendFile(stats, `\n${userid} - 0| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | `, (err) => {
-        if (err) reject(err);
-        resolve();
-        });
-        } else {
-      resolve();
-        }
-      });
-    });
-  }
-  */
 
   function statsResponce(message, id){
     userData = readData(data.json.user)

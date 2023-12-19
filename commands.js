@@ -306,9 +306,9 @@ function leaderboard(message){
   let type = message.options._hoistedOptions[0].value
   let file
   if(type === "event"){
-    file = data.files.splatfest
+    file = "event"
   } else {
-    file = data.files.scores
+    file = "scores"
   }
   functions.getusername(file).then(responce => {
     message.reply({

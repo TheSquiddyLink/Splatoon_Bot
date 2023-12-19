@@ -1,20 +1,19 @@
 {
   "salmon": {
-    "lesser": "2",
+    "lesser": "none",
     "boss": "none",
     "king": "none"
   },
-  "health": 4,
+  "health": 0,
   "salmon_meter": 100,
   "reaction_only": false,
-  "cooldown": true,
+  "cooldown": false,
   "event": {
     "event_start": "",
     "event_end": "",
     "event_name": "",
     "event_disc": "",
-    "cooldown": [],
-    "splatfest": {}
+    "cooldown": []
   },
   "king_ids": []
 }
