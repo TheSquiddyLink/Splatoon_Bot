@@ -151,16 +151,16 @@ async function spawnsalmon(type, message){
                     await delay(60000)
                     console.log("Timer Ended")
                     let new_global = await functions.readData(data.json.global)
-                    let new_lesser = new_global.salmon.lesser
-                    let new_boss = new_global.salmon.global
+                    console.log(new_global.salmon[type])
+                    let current = new_global.salmon[type]
                     new_global.cooldown = false
-
-                    if((!(new_lesser === "none")) || (!(new_boss === "none"))){
+                    if(!(current === "none")){
                       message.channel.send(`The ${salmon[i].name} got away :(` )
                       
                       new_global.salmon.lesser = "none"
                       new_global.salmon.boss = "none"
                       new_global.health = 0
+                      new_global.cooldown = false
                       functions.writeData(data.json.global, new_global)
                     }
                     break
