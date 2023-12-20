@@ -14,7 +14,6 @@ function spawnRandom(message){
     }
 }
 async function spawnsalmon(type, message){
-    let main_txt = data.files.main_txt
     let salmon = data.salmon
     let globalData = await functions.readData(data.json.global)
 
@@ -66,14 +65,20 @@ async function spawnsalmon(type, message){
                 var rand = rand*100
                 var rand = Math.round(rand)
                 console.log(rand)
-                if (type === "boss"){
+                console.log(`This is the salmon meter: ${salmon_meter}`)
+                if(salmon_meter >= 100){
+                  console.log("Spawning King")
+                  salmon = salmon.king_salmon
+                  globalData.salmon_meter = 0
+                  gldegg = "0"
+                } else if (type === "boss"){
                   salmon = salmon.boss_salmon
                   gldegg = "0-3"
-                } 
-                if (type === "lesser") {
+                } else if (type === "lesser") {
                   salmon = salmon.lesser_salmon
                   gldegg = "0"
                 }
+                
                 
                 for (i in salmon){
                   console.log(salmon[i].chance)
@@ -89,8 +94,8 @@ async function spawnsalmon(type, message){
                         }
                       
                       } else {
-                        let salmon_meter = globalData.salmon_meter
                           console.log(parseFloat(salmon_meter))
+
                           var salmon_meter2 = parseFloat(salmon_meter) + parseFloat((Math.random()*5))
                           salmon_meter2 = salmon_meter2.toFixed(2)
                           var salmon_state = 0
@@ -103,8 +108,12 @@ async function spawnsalmon(type, message){
                             track++
                             console.log(track)
                           }
+                          console.log(`Salmon Meter: ${salmon_meter2}`)
                           if (salmon_meter2 >= 100){
                             salmon_meter2 = 100
+                          }
+                          if(salmon_meter >= 100){
+                            salmon_meter2 = 0
                           }
                           
                           globalData.salmon_meter = salmon_meter2
@@ -144,6 +153,7 @@ async function spawnsalmon(type, message){
                     let new_global = await functions.readData(data.json.global)
                     let new_lesser = new_global.salmon.lesser
                     let new_boss = new_global.salmon.global
+                    new_global.cooldown = false
 
                     if((!(new_lesser === "none")) || (!(new_boss === "none"))){
                       message.channel.send(`The ${salmon[i].name} got away :(` )
@@ -172,15 +182,11 @@ async function spawnsalmon(type, message){
     }
 
   async function splatSalmon(message){
-    let main_txt = data.files.main_txt
     var check = false
     let salmon
     let lesser_salmon = data.salmon.lesser_salmon
     let boss_salmon = data.salmon.boss_salmon
     let king_salmon = data.salmon.king_salmon
-    let stats = data.files.stats
-    let scores = data.files.scores
-    let goldeneggs = data.files.goldeneggs
     let splatemoji = data.emoji.splatemoji
 
     let userData = await functions.readData(data.json.user)
@@ -302,11 +308,10 @@ async function spawnsalmon(type, message){
                       } else {
                         value = Gold;
                       }
-                        await optional.addscales(value, scale, id_list).then(() => {
-                          let rawData = functions.readData(data.json.global)
-                          rawData.king_ids = []
-                          functions.writeData(data.json.global, rawData)
-                        })
+
+                        let rawData = optional.addscales(value, scale, id_list)
+                        rawData.king_ids = []
+                        functions.writeData(data.json.global, rawData)
                       
                     }); 
                   })

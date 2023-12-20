@@ -8,17 +8,6 @@ const { title } = require('process');
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const data = {
-  files: {
-      main_txt: './tmp/test.txt',
-      scores: './tmp/scores.txt',
-      status: './tmp/status.txt',
-      goldeneggs: './tmp/goldeneggs.txt',
-      stats: './tmp/stats' ,
-      king_ids: './tmp/king_ids',
-      cooldown: `./tmp/event/cooldown`,
-      splatfest: `./tmp/event/splatfest`,
-      json: `./data.json`
-  },
   emoji: {
     sm_states: [
       "<:Salmometer0:1144024236114071615>",
@@ -170,9 +159,6 @@ async function txtlookup(path, value) {
   }
 
 
-  function removeitem(id, path, old){
-    replacefile(path, old, id)
-  }
 
   async function getusername(type){
     let userData = readData(data.json.user)
@@ -211,12 +197,19 @@ async function txtlookup(path, value) {
   
     });
   }
-  async function addscales(type, id_list){
+  async function addscales(value, type, id_list){
     let raw_data = readData(data.json.user)
     let user_scales = raw_data.scales
-    for(i in id_list){
-      console.log(id_list)  
+    for(value > 0; value--;){
+      let random_id = id_list[Math.floor(Math.random() * id_list.length)]
+      if(raw_data.scales[random_id] === undefined){
+        raw_data.scales[random_id] = 1
+      }else{
+        raw_data.scales[random_id]++
+      }
     }
+
+    return raw_data
 
   }
 
@@ -315,14 +308,6 @@ async function txtlookup(path, value) {
     
   }
 
-  async function replacefile(location, old, replaced){
-    var options = {
-      files: location,
-      from: old,
-      to: replaced,
-    };
-    replaceInFile.sync(options)
-  }
 
   async function buyResponce(id, newgoldegg, item, message){
     console.log(item.value)
@@ -385,37 +370,17 @@ async function txtlookup(path, value) {
     }
     console.log(globalData)
     writeData(data.json.global, globalData)
-
-    // Following code is for the outdated TXT files
-    let resetvars = data.resetvars
-    let main_txt = data.files.main_txt
-    for (i in resetvars) {
-        console.log(`${i}`)
-        await txtlookup(main_txt, resetvars[i].name).then((old) => {
-        console.log(`thing: ${resetvars[i].name} - ${old}`)
-        replacefile(main_txt, `${resetvars[i].name} - ${old}`, `${resetvars[i].name} - ${resetvars[i].value}`)
-        })
-    }
-    let king_ids = data.files.king_ids
-    fs.readFile(king_ids, async function(err, data) {
-        replacefile(king_ids, data, "")
-    })
-    let cooldown = data.files.cooldown
-    fs.readFile(cooldown, async function(err, data) {
-        replacefile(cooldown, data, "")
-    })
+    console.log("Reset Complete")
   }
 
 
   const functions = {
-    txtlookup: txtlookup,
     getusername: getusername,
     getNthValue: getNthValue,
     buyResponce: buyResponce,
     statsResponce: statsResponce,
     readData: readData,
     writeData: writeData,
-    replacefile: replacefile,
     update_status: update_status,
     startReset: startReset
   }
@@ -423,7 +388,6 @@ async function txtlookup(path, value) {
   const optional = {
     addStats: addStats,
     addscales: addscales,
-    removeitem: removeitem,
     mode: mode,
   }
   client.login(config.discord.token);
