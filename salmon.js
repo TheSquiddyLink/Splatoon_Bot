@@ -1,4 +1,3 @@
-const { underscore } = require('discord.js');
 const { data, functions, delay, optional } = require('./data.js')
 
 function spawnRandom(message){
