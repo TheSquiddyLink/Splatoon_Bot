@@ -5,9 +5,9 @@
     "king": "none"
   },
   "health": 0,
-  "salmon_meter": "17.53",
+  "salmon_meter": "18.91",
   "reaction_only": false,
-  "cooldown": false,
+  "cooldown": true,
   "event": {
     "event_start": "",
     "event_end": "",
