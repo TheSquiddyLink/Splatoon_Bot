@@ -1,5 +1,6 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const { data, functions } = require('./data.js')
+const [ all_data ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
@@ -137,18 +138,57 @@ const commands = [
     command: item
   },
   {
-    name: "json_test",
-    value: "json_test",
-    description: "Test for reading & writing JSON",
-    command: jsonTest
+    name: "rotation",
+    description: "View the current rotation",
+    options: [
+      {
+        name: "mode",
+        value: "mode_value",
+        description: "Specified Mode",
+        type: ApplicationCommandOptionType.String,
+        choices: data.modes,
+        required: true
+      }
+    ],
+    command: rotation
   }
 
 ];
+async function rotation(message){
+ 
+  let mode = functions.getNthValue(message, 0)
+  console.log(mode)
+  
+  let modeData = data.modeValue 
 
-function jsonTest(message){
-  let raw_data = functions.readData()
-  raw_data.main.salmon.lesser = "0"
-  functions.writeData(raw_data)
+  let rotationData = await all_data(mode)
+  console.log(rotationData)
+  let startTime = new Date(rotationData.start_time)
+  startTime = startTime.getTime() / 1000
+
+  let endTime = new Date(rotationData.end_time)
+  endTime = endTime.getTime() / 1000
+  console.log(modeData[mode].image)
+
+  let info = new EmbedBuilder()
+  .setTitle(`Rotation for ${modeData[mode].name}`)
+  .setDescription(`<t:${startTime}:t> - <t:${endTime}:t>`)
+  .setThumbnail(modeData[mode].image)
+
+  let stage_1 = new EmbedBuilder()
+  .addFields(
+    {name: "Stage 1", value: rotationData.stage1.name},
+  )
+  .setImage(rotationData.stage1.image)
+
+  let stage_2 = new EmbedBuilder()
+  .addFields(
+    {name: "Stage 2", value: rotationData.stage2.name},
+  )
+  .setImage(rotationData.stage2.image)
+  
+  message.reply({embeds: [info, stage_1, stage_2]})
+   
 }
 
 function item(message){

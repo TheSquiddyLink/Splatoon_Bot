@@ -80,6 +80,56 @@ const data = {
     "<:Salmometer4:1144024229650645224>",
     "<:Salmometer5:1144024231542280342>"
   ],
+  modes: [
+    {
+      name: "Turf War",
+      value: "regular"
+    },
+    {
+      name: "Anarchy Open",
+      value: "open"
+    },
+    {
+      name: "Anarchy Series",
+      value: "series"
+    },
+    {
+      name: "X Battle",
+      value: "xbattle"
+    },
+    {
+      name: "Salmon Run",
+      value: "salmon"
+    }
+  ],
+
+  modeValue: {
+    regular: { 
+      name: "Turf War",
+      value: 0,
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/e/ec/Symbol_TW_Splat.svg/1024px-Symbol_TW_Splat.svg.png?20160418203701"
+    },
+    open: {
+      value: 1,
+      name: "Anarchy Open",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/3/36/S_Ranked_Battle_Icon.png?20200427153346"
+    },
+    series: {
+      value: 2,
+      name: "Anarchy Series",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/3/36/S_Ranked_Battle_Icon.png?20200427153346"
+    },
+    xbattle: {
+      value: 3,
+      name: "X Battle",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/3/3e/S3_Icon_X_Battle.svg/2048px-S3_Icon_X_Battle.svg.png"
+    },
+    salmon: {
+      value: 4,
+      name: "Salmon Run",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/f/f0/SplatNet_3_icon_Salmon_Run.svg/2048px-SplatNet_3_icon_Salmon_Run.svg.png"
+    }
+  },
   status_lines: 263,
 
   json: {
