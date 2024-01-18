@@ -185,7 +185,9 @@ const client = new Client({
 });
 
 
-
+function timestamp(time){
+  
+}
 
   async function getusername(type){
     let userData = readData(data.json.user)

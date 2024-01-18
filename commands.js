@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const { data, functions } = require('./data.js')
-const [ all_data ] = require('./splatoon3api.js')
+const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
@@ -151,9 +151,51 @@ const commands = [
       }
     ],
     command: rotation
+  },
+  {
+    name: "splatfest",
+    description: "View the current splatfest",
+    command: viewSplatfest,
   }
 
 ];
+
+async function viewSplatfest(message){
+  let rawData = await splatfest()
+  rawData = rawData.US
+  let startTime = toTimestamp(rawData.startTime)
+  let endTime = toTimestamp(rawData.endTime)
+  let title = rawData.title
+
+  let teams = rawData.teams
+
+  let main = new EmbedBuilder()
+  .setTitle(title)
+  .setDescription(`<t:${startTime}:f> - <t:${endTime}:f>`)
+
+  let embeds = [main]
+  for(let team in teams){
+    
+    
+    let teamName = teams[team].teamName
+    let image = teams[team].image
+    let color = teams[team].colorHEX
+
+    let teamEmbed = new EmbedBuilder()
+    .setTitle(teamName)
+    .setImage(image)
+    .setColor(color.substring(0, 7))
+
+    embeds.push(teamEmbed)
+  }
+  message.reply({embeds: embeds})
+}
+
+function toTimestamp(timeString){
+  let time = new Date(timeString)
+  let timeStamp = time.getTime() / 1000
+  return(String(timeStamp))
+}
 async function rotation(message){
  
   let mode = functions.getNthValue(message, 0)

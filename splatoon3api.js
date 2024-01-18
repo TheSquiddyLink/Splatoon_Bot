@@ -17,4 +17,13 @@ function all_data(mode){
     })
 }
 
-module.exports = [ all_data ]
+function splatfest(){
+    return new Promise(resolve => {
+        Splatoon3.getCurrentSplatfest(res => {
+            console.log(res)
+            resolve(res)
+        })
+    })
+}
+
+module.exports = [ all_data, splatfest ]
