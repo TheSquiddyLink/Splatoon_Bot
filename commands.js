@@ -264,19 +264,35 @@ async function rotationMessage(mode){
     .setDescription(rules)
     .setThumbnail(rulesImage)
   }
+  let stage
+  let stage_1
+  let stage_2
+  if(mode === "salmon"){
+    stage = new EmbedBuilder()
+    .addFields({name:"Stage", value: rotationData.stage.name})
+    .setImage(rotationData.stage.image)
+
+    weapons = new EmbedBuilder()
+    .addFields({name:"Weapon 1", value: rotationData.weapons[0].name},
+    {name:"Weapon 2", value: rotationData.weapons[1].name}, 
+    {name:"Weapon 3", value: rotationData.weapons[2].name},
+    {name:"Weapon 4", value: rotationData.weapons[3].name})
+  } else {
+    stage_1 = new EmbedBuilder()
+
+    .addFields(
+      {name: "Stage 1", value: rotationData.stage1.name},
+    )
+    .setImage(rotationData.stage1.image)
   
+    stage_2 = new EmbedBuilder()
+    .addFields(
+      {name: "Stage 2", value: rotationData.stage2.name},
+    )
+    .setImage(rotationData.stage2.image)  
+  }
 
-  let stage_1 = new EmbedBuilder()
-  .addFields(
-    {name: "Stage 1", value: rotationData.stage1.name},
-  )
-  .setImage(rotationData.stage1.image)
-
-  let stage_2 = new EmbedBuilder()
-  .addFields(
-    {name: "Stage 2", value: rotationData.stage2.name},
-  )
-  .setImage(rotationData.stage2.image)  
+  
   let options = []
   
   for(el of data.modes){
@@ -295,6 +311,13 @@ async function rotationMessage(mode){
 
   let embeds = [info, stage_1, stage_2]
   if(rulesEmbed) embeds.splice(1, 0, rulesEmbed)
+  if(mode === "salmon"){
+    embeds.pop()
+    embeds.pop()
+    embeds.push(weapons)
+    embeds.push(stage)
+    
+  }
 
   return {embeds: embeds, components: [row]}
 
