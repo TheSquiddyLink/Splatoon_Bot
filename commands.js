@@ -4,7 +4,7 @@ const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
-const types = ["lesser_salmon", "boss_salmon", "king_salmon"]
+
 for(i in data.salmon){
   let type = data.salmon[i]
   for(j in type){

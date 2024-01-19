@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { config } = require('./config/config.js')
-const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin, underscore } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -139,9 +139,9 @@ const data = {
   status_lines: 263,
 
   json: {
-    global: "./global_data.json",
-    user:  "./user_data.json",
-    status: "./status.json"
+    global: "json/global_data.json",
+    user:  "json/user_data.json",
+    status: "json/status.json"
   }
 }
 async function mode(array)

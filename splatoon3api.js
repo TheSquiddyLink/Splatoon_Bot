@@ -2,7 +2,7 @@ const splatoon3api = require("splatoon3api");
 const Splatoon3 = new splatoon3api.Client("en-GB");
 
 function all_data(mode, session = 0){
-    if(session < 0) session =0
+    if(session < 0) session = 0
     return new Promise(resolve => {
         if(mode === "salmon") {
             Splatoon3.getSalmonRun(res => {
