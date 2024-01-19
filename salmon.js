@@ -6,7 +6,6 @@ function spawnRandom(message){
     bosschance = Math.round(bosschance)
     console.log(bosschance)
     if (bosschance <= 50){
-      var lesser_chance = 0
       spawnsalmon("lesser", message)
     } else {
       spawnsalmon("boss", message)
@@ -154,7 +153,7 @@ async function spawnsalmon(type, message){
                     let current = new_global.salmon[type]
                     new_global.cooldown = false
                     if(!(current === "none")){
-                      message.channel.send(`The ${salmon[i].name} got away :(` )
+                      message.channel.send(`The ${salmon[current].name} got away :(` )
                       
                       new_global.salmon.lesser = "none"
                       new_global.salmon.boss = "none"
