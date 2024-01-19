@@ -1,22 +1,10 @@
 const fs = require('fs');
 const { config } = require('./config/config.js')
-const readline = require('node:readline');
-const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin } = require('discord.js');
-const replaceInFile = require('replace-in-file/lib/replace-in-file');
+const { Client, GatewayIntentBits, ApplicationCommandNumericOptionMinMaxValueMixin, underscore } = require('discord.js');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const data = {
-  files: {
-      main_txt: './tmp/test.txt',
-      scores: './tmp/scores.txt',
-      status: './tmp/status.txt',
-      goldeneggs: './tmp/goldeneggs.txt',
-      stats: './tmp/stats' ,
-      king_ids: './tmp/king_ids',
-      cooldown: `./tmp/event/cooldown`,
-      splatfest: `./tmp/event/splatfest`,
-  },
   emoji: {
     sm_states: [
       "<:Salmometer0:1144024236114071615>",
@@ -37,9 +25,9 @@ const data = {
     {name: "Wave Breaker", value: "WB", use_splat: false, emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
   ],
   scales: [
-    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>",  file: './tmp/scales/bronze'},
-    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>",  file: './tmp/scales/silver'},
-    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>",  file: './tmp/scales/gold'},
+    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>"},
+    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>"},
+    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>"},
   ],
 
   salmon: {
@@ -63,8 +51,8 @@ const data = {
       {name: "Goldie", health: 4 , chance: 1, timer: 10, bomb: false, hitbox: 85, points: 5, bonus: 2,emoji: "<:goldie:1143398987479646308>", image: "https://media.discordapp.net/attachments/1142680467825500264/1143654352255459348/120px-S3_Goldie_icon.png?width=240&height=240"},
     ],
     king_salmon: [
-      {name: "Cohozuna", health: 20 , chance: 50, hitbox: 90, points: 100, emoji: "<:cohozuna:1145205344621039677>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514388369418/S3_Cohozuna_icon.png?width=800&height=800"},
-      {name: "Horrorboros", health: 15 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
+      {name: "Cohozuna", health: 2 , chance: 50, hitbox: 90, points: 100, emoji: "<:cohozuna:1145205344621039677>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514388369418/S3_Cohozuna_icon.png?width=800&height=800"},
+      {name: "Horrorboros", health: 2 , chance: 0, hitbox: 80, points: 100, emoji: "<:horrorboros:1145205346399420468>", image: "https://media.discordapp.net/attachments/1142680467825500264/1145209514153480283/S3_Horrorboros_icon.png?width=800&height=800"},
     ]
   },
   resetvars: [
@@ -74,6 +62,16 @@ const data = {
     {name: "health",value: "0"},
     {name: "cooldown",value: "false"},
   ],
+
+  resetvarsJson: [
+    {name: "lesser", parent: "salmon", value: "none"},
+    {name: "boss", parent: "salmon", value: "none"},
+    {name: "king", parent: "salmon", value: "none"},
+    {name: "health", value: 0},
+    {name: "cooldown", value: false},
+    {name: "king_ids", value: []},
+    {name: "cooldown", parent: "event", value: []}
+  ],
   sm_states: [
     "<:Salmometer0:1144024236114071615>",
     "<:Salmometer1:1144024234264367155>",
@@ -82,7 +80,105 @@ const data = {
     "<:Salmometer4:1144024229650645224>",
     "<:Salmometer5:1144024231542280342>"
   ],
+  modes: [
+    {
+      name: "Turf War",
+      value: "regular"
+    },
+    {
+      name: "Anarchy Open",
+      value: "open"
+    },
+    {
+      name: "Anarchy Series",
+      value: "series"
+    },
+    {
+      name: "X Battle",
+      value: "xbattle"
+    },
+    {
+      name: "Salmon Run",
+      value: "salmon"
+    }
+  ],
+
+  modeValue: {
+    regular: { 
+      name: "Turf War",
+      value: 0,
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/e/ec/Symbol_TW_Splat.svg/1024px-Symbol_TW_Splat.svg.png?20160418203701"
+    },
+    open: {
+      value: 1,
+      name: "Anarchy Open",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/3/36/S_Ranked_Battle_Icon.png?20200427153346"
+    },
+    series: {
+      value: 2,
+      name: "Anarchy Series",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/3/36/S_Ranked_Battle_Icon.png?20200427153346"
+    },
+    xbattle: {
+      value: 3,
+      name: "X Battle",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/3/3e/S3_Icon_X_Battle.svg/2048px-S3_Icon_X_Battle.svg.png"
+    },
+    salmon: {
+      value: 4,
+      name: "Salmon Run",
+      image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/f/f0/SplatNet_3_icon_Salmon_Run.svg/2048px-SplatNet_3_icon_Salmon_Run.svg.png"
+    }
+  },
+  rules: {
+    "Tower Control": "https://cdn.wikimg.net/en/splatoonwiki/images/b/bc/S3_icon_Tower_Control.png",
+    "Rainmaker": "https://cdn.wikimg.net/en/splatoonwiki/images/1/12/S3_icon_Rainmaker.png",
+    "Splat Zones": "https://cdn.wikimg.net/en/splatoonwiki/images/3/38/S3_icon_Splat_Zones.png",
+    "Clam Blitz": "https://cdn.wikimg.net/en/splatoonwiki/images/e/e3/S3_icon_Clam_Blitz.png"
+  },
   status_lines: 263,
+
+  json: {
+    global: "./global_data.json",
+    user:  "./user_data.json",
+    status: "./status.json"
+  }
+}
+async function mode(array)
+{
+    if(array.length == 0)
+        return null;
+    var modeMap = {};
+    var maxEl = array[0], maxCount = 1;
+    for(var i = 0; i < array.length; i++)
+    {
+        var el = array[i];
+        if(modeMap[el] == null)
+            modeMap[el] = 1;
+        else
+            modeMap[el]++;  
+        if(modeMap[el] > maxCount)
+        {
+            maxEl = el;
+            maxCount = modeMap[el];
+        }
+    }
+    console.log(`${maxEl}, ${maxCount}`)
+    return [maxEl, maxCount];
+}
+
+function readData(file) {
+  try {
+    const rawData = fs.readFileSync(file, 'utf-8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    // If the file doesn't exist or there's an error reading it, return an empty object
+    return {}
+  }
+}
+
+function writeData(file, value) {
+  fs.writeFileSync(file, JSON.stringify(value, null, 2), 'utf-8');
 }
 
 const client = new Client({
@@ -94,57 +190,25 @@ const client = new Client({
     ]
 });
 
-async function txtlookup(path, value) {
-    const fileStream = fs.createReadStream(path);
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-    var count = 0
-    for await (const line of rl) {
-      
-      // Each line in input.txt will be successively available here as `line`.
-        if (line.indexOf(value) >= 0) {
-          console.log(line)
-          var line2 = line.split(" - ")[1]
-          return line2
-        }
-      } 
-  }
 
-  function removeitem(id, path, old){
-    replacefile(path, old, id)
-  }
-  async function scorestotuple(path) {
-    const fileStream = fs.createReadStream(path);
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-    var count = 0
-    var allscores = [{name: "0",score: "0"}]
-    for await (const line of rl) {
-      // Each line in input.txt will be successively available here as `line`.
-      var name2 =line.split(" - ")[0]
-      var score2 =line.split(" - ")[1]
-      console.log(name2)
-      console.log(score2)
-      allscores.push({name: name2,score: score2})
-      }
-    allscores.shift()
-    allscores.sort((a, b) => Number(b.score) - Number(a.score))
-    return allscores
-  } 
+function toTimestamp(timeString){
+  let time = new Date(timeString)
+  let timeStamp = time.getTime() / 1000
+  return(String(timeStamp))
+}
 
-  async function getusername(path){
-    return new Promise((resolve, reject) => {
-    scorestotuple(path).then(async (leaderboard) => {
+  async function getusername(type){
+    let userData = readData(data.json.user)
+
+    let arr = userData[type]
+
+    console.log(arr)
+
+    const leaderboard = Object.entries(arr)
+    leaderboard.sort((a, b) => b[1] - a[1])
+    console.log(leaderboard)
+
+    return new Promise(async (resolve, reject) => {
       console.log(leaderboard)
       var b = ""
       for (let i = 0; i < leaderboard.length; i++){
@@ -158,110 +222,116 @@ async function txtlookup(path, value) {
         } else {
           leader_emoji = `${i + 1}  -  `
         }
-          a = leaderboard[i].name
+          a = leaderboard[i][0]
           console.log(String(a))
           await client.users.fetch(a).then(async (profilename) => {
             console.log(profilename)
-            b = b.concat(`${leader_emoji} ${profilename.globalName} <${profilename.username}> - **${leaderboard[i].score}**\n`)
+            b = b.concat(`${leader_emoji} ${profilename.globalName} <${profilename.username}> - **${leaderboard[i][1]}**\n`)
         })
         }
         console.log(b)
         resolve(b);
   
     });
-    })
   }
-  async function addscales(count, value, scale, id_list){
-    while (count < value) {
-      var id_val = Math.floor(Math.random() * id_list.length);
-      console.log(`Added scale to ${id_list[id_val]}`);
-      var oldscale = await txtlookup(scale.file, id_val);
-      var data = await fs.promises.readFile(scale.file, 'utf8');
-  
-      if (data.indexOf(id_list[id_val]) < 0) {
-        console.log(`New: ${i}`);
-        fs.appendFileSync(scale.file, `\n${id_list[id_val]} - ${value}`);
-      } else {
-        var newscale = Number(oldscale) + 1;
-        console.log(`Replace: ${i}`);
-        var updatedData = data.replace(`${id_list[id_val]} - ${oldscale}`, `${id_list[id_val]} - ${newscale}`);
-        fs.writeFileSync(scale.file, updatedData, 'utf8');
+  async function addscales(value, type, id_list){
+    let raw_data = readData(data.json.user)
+    let user_scales = raw_data.scales
+    for(value > 0; value--;){
+      let random_id = id_list[Math.floor(Math.random() * id_list.length)]
+      if(raw_data.scales[random_id] === undefined){
+        raw_data.scales[random_id] = 1
+      }else{
+        raw_data.scales[random_id]++
       }
-  
-      count++;
     }
+
+    return raw_data
+
   }
-  async function addstats(userid) {
-    let stats = data.files.stats
-    return new Promise((resolve, reject) => {
-      fs.readFile(stats, async function (err, data) {
-      if (err) reject(err);
-      if(data.indexOf(userid) < 0){
-        fs.appendFile(stats, `\n${userid} - 0| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | `, (err) => {
-        if (err) reject(err);
-        resolve();
-        });
-        } else {
-      resolve();
-        }
-      });
-    });
+
+  async function addStats(userid){
+    let rawData = await readData(data.json.user)
+    console.log(rawData)
+    let statsData = rawData.stats
+    let syntax = statsData.syntax
+    console.log(statsData.users)
+    if(statsData.users[userid] === undefined){
+      let newUserData = []
+      for(i in syntax){
+        newUserData[i] = 0
+      }
+      console.log("New Data:")
+      console.log(newUserData)
+      statsData.users[userid] = newUserData
+      console.log(statsData.users)
+
+      rawData.stats.users = statsData.users
+
+      console.log("Final Data:")
+
+      writeData(data.json.user, rawData)
+
+    }
+
   }
 
   function statsResponce(message, id){
-    let stats = data.files.stats
-    let salmon = data.salmon
-    fs.readFile(stats, function (err, data) {
-      if (err) throw err;
-        addstats(id).then(() => {
-        txtlookup(stats, id).then(async (userstats) => {
-          var newstats = userstats.split(" | ")
-          var statmessage = ""
-          var count = 0
-          var type = ""
-          for( i in newstats) {
-            if(i == 17) {
-              break
-            }
-            if(i == 15){
-              count = 0
-              statmessage = `${statmessage}═════════════\n` 
-            }
-            if(i == 3) {
-              count = 0
-              statmessage = `${statmessage}═════════════\n` 
-            }
-            if(i >= 3) {
-              if (i >= 15){
-                console.log("King!")
-                type = salmon.king_salmon
-              } else
-                type = salmon.boss_salmon
-            } else{
-              type =  salmon.lesser_salmon 
-          }
-            statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
-            count = count + 1
-          }
-          await client.users.fetch(id).then(async (profilename) => {
-            console.log(profilename)
-            message.reply({
-              "channel_id": `${message.channel.id}`,
-              "content": "",
-              "tts": false,
-              "embeds": [
-                {
-                  "type": "rich",
-                  "title": `Here is ${profilename.username}'s stats`,
-                  "description": `${statmessage}`,
-                  "color": 0x00FFFF
+    userData = readData(data.json.user)
+    client.users.fetch(id).then(user => {
+      if(!user.bot){
+        let salmon = data.salmon
+          addStats(id).then(async () => {
+              let newstats = userData.stats.users[id]
+              var statmessage = ""
+              var count = 0
+              var type = ""
+              for( i in newstats) {
+                if(i == 17) {
+                  break
                 }
-              ]
-            })
+                if(i == 15){
+                  count = 0
+                  statmessage = `${statmessage}═════════════\n` 
+                }
+                if(i == 3) {
+                  count = 0
+                  statmessage = `${statmessage}═════════════\n` 
+                }
+                if(i >= 3) {
+                  if (i >= 15){
+                    console.log("King!")
+                    type = salmon.king_salmon
+                  } else
+                    type = salmon.boss_salmon
+                } else{
+                  type =  salmon.lesser_salmon 
+              }
+                statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
+                count = count + 1
+              }
+              await client.users.fetch(id).then(async (profilename) => {
+                console.log(profilename)
+                message.reply({
+                  "channel_id": `${message.channel.id}`,
+                  "content": "",
+                  "tts": false,
+                  "embeds": [
+                    {
+                      "type": "rich",
+                      "title": `Here is ${profilename.username}'s stats`,
+                      "description": `${statmessage}`,
+                      "color": 0x00FFFF
+                    }
+                  ]
+                })
+              })
           })
-        })
-      })
+      } else {
+        message.reply("User provided is a bot")
+      }
     })
+    
   }
 
   function getNthValue(message, n){
@@ -275,110 +345,88 @@ async function txtlookup(path, value) {
     
   }
 
-  async function replacefile(location, old, replaced){
-    var options = {
-      files: location,
-      from: old,
-      to: replaced,
-    };
-    replaceInFile.sync(options)
-  }
 
-  async function buyResponce(id, aviable, newgoldegg, item, message){
+  async function buyResponce(id, newgoldegg, item, message){
+    console.log(item.value)
+    let userData = await readData(data.json.user)
     goldeggemoji = data.emoji.goldeggemoji
-    await replacefile(data.files.goldeneggs, `${id} - ${aviable}`, `${id} - ${newgoldegg}`).then(async () => {
-    fs.readFile(item.file, async function (err, data) {
-      if (err) throw err;
-      if(data.indexOf(id) < 0){
-        fs.appendFileSync(item.file, `\n${id} - ${1*item.mult}`)
-        message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **${1*item.mult}** ${item.name} `)
-      }else {
-        await txtlookup(item.file, id).then(async (old) => {
-          await replacefile(item.file, `${id} - ${old}`, `${id} - ${Number(old) + 1}`)
-          message.reply(`You now have ${goldeggemoji} **${newgoldegg}** and **${Number(old) + 1*item.mult}** ${item.name}`)
-        })  
-      }
-    })
-  })
-  }
 
-  async function setstatus(path, rand) {
-    const fileStream = fs.createReadStream(path);
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-    rand = Math.random() * (data.status_lines - 0) + 0;
-    rand = Math.round(rand)
-    console.log(rand)
-    var count2 = 0
-    for await (const line2 of rl) {
-      if (count2 === rand) {
-        return line2
-        
-      } else {
-        count2 = count2 + 1
-      }
+    userData.goldeneggs[id] = newgoldegg
+    let current = userData.shop_items[item.value][id]
+    if(userData.shop_items[item.value][id] === undefined){
+      userData.shop_items[item.value][id] = 1
+      current = 1
+    } else {
+      userData.shop_items[item.value][id] = userData.shop_items[item.value][id] + 1
+      current++
     }
+
+    
+    message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${current})** ${item.name} `)
+    writeData(data.json.user, userData)
   }
   
   async function update_status(){
-    console.log("Stats")
-    await setstatus(data.files.status).then(async (value) => {
-      title = value.split(" SPLT274 ")[0]
-      artist = value.split(" SPLT274 ")[1]
-      album = value.split(" SPLT274 ")[2]
-      duration = value.split(" SPLT274 ")[3]
-      console.log(duration)
-      duration = Number(duration) * 1000
-      console.log(duration)
-      console.log(value.replace("SPLT274", " - ").replace("SPLT274", " - ").replace("SPLT274", " - "))
-      client.user.setPresence({ activities: [{ name: `${title}`, state: `${artist} ${album}`, type: 2 }]})
-      await delay(duration);
-      update_status()
-    })
+    console.log("Update Status")
+    let status = await readData(data.json.status)
+
+    let length = status.length
+    console.log
+
+    let rand = Math.random() * (length)
+    rand = rand.toFixed(0)
+    console.log(rand)
+
+    let value = status[rand]
+
+    let title = value.title
+    let artist = value.artist
+    let album = value.album
+    let duration = value.duration
+
+    console.log(duration)
+    duration = Number(duration) * 1000
+
+    client.user.setPresence({ activities: [{ name: `${title}`, state: `${artist} ${album}`, type: 2 }]})
+    await delay(duration);
+    update_status()
   }
 
   async function startReset(){
     console.log("Start Reset")
-    let resetvars = data.resetvars
-    let main_txt = data.files.main_txt
-    for (i in resetvars) {
-        console.log(`${i}`)
-        await txtlookup(main_txt, resetvars[i].name).then((old) => {
-        console.log(`thing: ${resetvars[i].name} - ${old}`)
-        replacefile(main_txt, `${resetvars[i].name} - ${old}`, `${resetvars[i].name} - ${resetvars[i].value}`)
-        })
+    let globalData = await readData(data.json.global)
+    console.log(globalData)
+    for(i in data.resetvarsJson){
+      console.log(data.resetvarsJson[i].parent)
+      if(data.resetvarsJson[i].parent){
+        console.log("Using Parent")
+        globalData[data.resetvarsJson[i].parent][data.resetvarsJson[i].name] = data.resetvarsJson[i].value 
+      } else {
+        globalData[data.resetvarsJson[i].name] = data.resetvarsJson[i].value
+      }
     }
-    let king_ids = data.files.king_ids
-    fs.readFile(king_ids, async function(err, data) {
-        replacefile(king_ids, data, "")
-    })
-    let cooldown = data.files.cooldown
-    fs.readFile(cooldown, async function(err, data) {
-        replacefile(cooldown, data, "")
-    })
+    console.log(globalData)
+    writeData(data.json.global, globalData)
+    console.log("Reset Complete")
   }
 
 
   const functions = {
-    txtlookup: txtlookup,
     getusername: getusername,
     getNthValue: getNthValue,
     buyResponce: buyResponce,
     statsResponce: statsResponce,
-    replacefile: replacefile,
+    readData: readData,
+    writeData: writeData,
     update_status: update_status,
-    startReset: startReset
+    startReset: startReset,
+    toTimestamp: toTimestamp
   }
 
   const optional = {
-    addstats: addstats,
+    addStats: addStats,
     addscales: addscales,
-    removeitem: removeitem,
+    mode: mode,
   }
   client.login(config.discord.token);
   module.exports = { data, functions, client, delay, optional}

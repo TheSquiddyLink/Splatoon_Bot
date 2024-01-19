@@ -1,5 +1,6 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { data, functions } = require('./data.js')
+const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
@@ -136,17 +137,229 @@ const commands = [
     ],
     command: item
   },
+  {
+    name: "rotation",
+    description: "View the current rotation",
+    options: [
+      {
+        name: "mode",
+        value: "mode_value",
+        description: "Specified Mode",
+        type: ApplicationCommandOptionType.String,
+        choices: data.modes,
+        required: true
+      }
+    ],
+    command: rotation
+  },
+  {
+    name: "splatfest",
+    description: "View the current splatfest",
+    command: viewSplatfest,
+  }
 
 ];
 
+async function viewSplatfest(message){
+  let rawData = await splatfest()
+  rawData = rawData.US
+  let startTime = toTimestamp(rawData.startTime)
+  let endTime = toTimestamp(rawData.endTime)
+  let title = rawData.title
+
+  let teams = rawData.teams
+
+  let main = new EmbedBuilder()
+  .setTitle(title)
+  .setDescription(`<t:${startTime}:f> - <t:${endTime}:f>`)
+
+  let embeds = [main]
+  for(let team in teams){
+    
+    
+    let teamName = teams[team].teamName
+    let image = teams[team].image
+    let color = teams[team].colorHEX
+
+    let teamEmbed = new EmbedBuilder()
+    .setTitle(teamName)
+    .setImage(image)
+    .setColor(color.substring(0, 7))
+
+    embeds.push(teamEmbed)
+  }
+  message.reply({embeds: embeds})
+}
+
+
+async function rotation(message){
+ 
+  let mode = functions.getNthValue(message, 0)
+  console.log(mode)
+
+  let rotMessage = await rotationMessage(mode)
+
+  let response = await message.reply(rotMessage)
+  
+  waitRotMenu(response, message, 0 , mode)
+}
+
+async function editRotation(mode, response, message, session = 0){
+  console.log(`New Session: ${session}`)
+  console.log(mode)
+  let rotMessage = await rotationMessage(mode, session)
+  response.edit(rotMessage)
+  waitRotMenu(response, message, session, mode)
+}
+
+async function waitRotMenu(response, message, session = 0, mode){
+  const collectorFilter = i => i.user.id === message.user.id;
+
+  try{
+    const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+    console.log(confirmation.customId)
+    await confirmation.deferUpdate();
+
+    if(confirmation.customId === "mode"){
+      console.log("Button Worked!")
+      editRotation(confirmation.values[0], response, message)
+    } else if(confirmation.customId === "forward"){
+      
+      console.log(session + 1)
+      editRotation(mode, response, message, session + 1)
+    } else if(confirmation.customId === "back"){
+      editRotation(mode, response, message, session - 1)
+    }
+  } catch (e) {
+    console.log("Timed out")
+    console.log(e)
+    response.edit({content: response.content, components: []})
+  }
+}
+
+async function rotationMessage(mode, session = 0){
+  let modeData = data.modeValue 
+
+  let rotationData = await all_data(mode, session)
+  console.log(rotationData)
+
+  let startTime = functions.toTimestamp(rotationData.start_time)
+
+  let endTime = functions.toTimestamp(rotationData.end_time)
+  console.log(modeData[mode].image)
+
+  let rules
+  let rulesImage
+
+  let rulesEmbed = false
+  if(["open", "series"].includes(mode)){
+    rules = rotationData.rules
+    rulesImage = data.rules[rules]
+    rulesEmbed = true
+  }
+
+  console.log(rotationData.rulesImg)
+
+ 
+  
+  let info = new EmbedBuilder()
+  .setTitle(`Rotation for ${modeData[mode].name}`)
+  .setDescription(`<t:${startTime}:t> - <t:${endTime}:t> \n <t:${startTime}:d> - <t:${endTime}:d>`)
+  .setThumbnail(modeData[mode].image)
+
+  if(rulesEmbed){
+    rulesEmbed = new EmbedBuilder()
+    .setTitle("Rules")
+    .setDescription(rules)
+    .setThumbnail(rulesImage)
+  }
+  let stage
+  let stage_1
+  let stage_2
+  if(mode === "salmon"){
+    stage = new EmbedBuilder()
+    .addFields({name:"Stage", value: rotationData.stage.name})
+    .setImage(rotationData.stage.image)
+
+    weapons = new EmbedBuilder()
+    .addFields({name:"Weapon 1", value: rotationData.weapons[0].name},
+    {name:"Weapon 2", value: rotationData.weapons[1].name}, 
+    {name:"Weapon 3", value: rotationData.weapons[2].name},
+    {name:"Weapon 4", value: rotationData.weapons[3].name})
+  } else {
+    stage_1 = new EmbedBuilder()
+
+    .addFields(
+      {name: "Stage 1", value: rotationData.stage1.name},
+    )
+    .setImage(rotationData.stage1.image)
+  
+    stage_2 = new EmbedBuilder()
+    .addFields(
+      {name: "Stage 2", value: rotationData.stage2.name},
+    )
+    .setImage(rotationData.stage2.image)  
+  }
+
+  
+  let options = []
+  
+  for(el of data.modes){
+    let option = new StringSelectMenuOptionBuilder()
+      .setLabel(el.name)
+      .setValue(el.value)
+    options.push(option)
+  }
+  let menu = new StringSelectMenuBuilder()
+  .addOptions(options)
+  .setCustomId("mode")
+  .setPlaceholder(modeData[mode].name)
+
+  let forward = new ButtonBuilder()
+  .setStyle(ButtonStyle.Secondary)
+  .setCustomId("forward")
+  .setLabel("⏩")
+
+  let back = new ButtonBuilder()
+  .setCustomId("back")
+  .setLabel("⏪")
+  .setStyle(ButtonStyle.Secondary)
+
+  let row1 = new ActionRowBuilder()
+  .addComponents(back, forward)
+  let row2 = new ActionRowBuilder()
+  .addComponents(menu)
+
+  let embeds = [info, stage_1, stage_2]
+  if(rulesEmbed) embeds.splice(1, 0, rulesEmbed)
+  if(mode === "salmon"){
+    embeds.pop()
+    embeds.pop()
+    embeds.push(weapons)
+    embeds.push(stage)
+    
+  }
+
+  return {embeds: embeds, components: [row1, row2]}
+
+} 
+
 function item(message){
+  let userData = functions.readData(data.json.user)
   let items = data.shop_items.filter(item => !item.use_splat)
   for(i in items){
     if(items[i].value === functions.getNthValue(message, 0)){
         items[i].command
         console.log(items[i].value)
         if(items[i].value === "WB"){
-          spawnRandom(message)
+          console.log(userData.shop_items.WB[message.user.id])
+          if(userData.shop_items.WB[message.user.id] >= 1){
+            spawnRandom(message)
+            userData.shop_items.WB[message.user.id] = userData.shop_items.WB[message.user.id] - 1
+            functions.writeData(data.json.user, userData)
+          } else {
+            message.reply("You don't have enough Wave Breakers")
+          }
         }
     }
   }
@@ -157,33 +370,32 @@ function splat(message){
   splatSalmon(message)
 }
 function stats(message){
-  value = functions.getNthValue(message, 0)
-  functions.statsResponce(message, message.user.id)
+  let value = functions.getNthValue(message, 0)
+  functions.statsResponce(message, value)
 
 }
 
 async function inv(message){
   let inv = ""
-  let shop_items = data.shop_items
-    for(i in shop_items){
-      await functions.txtlookup(shop_items[i].file, message.user.id).then((amount) => {
-        if(amount === undefined){
-          amount = 0
-        }
-        inv = `${inv}${shop_items[i].emoji} ${shop_items[i].name} | ${shop_items[i].value} | **${amount}**\n`
-      })
+  let all_items = data.shop_items
+  let userData = await functions.readData(data.json.user)
+
+  for(i in all_items){
+    let ammount = userData.shop_items[all_items[i].value][message.user.id]
+    if(ammount === undefined){
+      ammount = 0
     }
-    var inv_scales = ""
-    let scales = data.scales
-    for(i in scales){
-      await functions.txtlookup(scales[i].file, message.user.id).then((amount) => {
-        inv_scales = `${inv_scales}${scales[i].emoji} ${scales[i].name} | **${amount}**\n`
-      })
-    }
-    var goldeggammt = 0
-    await functions.txtlookup(data.files.goldeneggs, message.user.id).then((amount) => {
-      goldeggammt = amount
-    })
+    inv = `${inv}${all_items[i].emoji} ${all_items[i].name} | ${all_items[i].value} | **${ammount}**\n`
+  }
+
+  let goldeggammt = userData.goldeneggs[message.user.id]
+  
+  let inv_scales = ""
+  for(i in data.scales){
+    let ammount = userData.scales[data.scales[i].name][message.user.id]
+    inv_scales = `${inv_scales}${data.scales[i].emoji} ${data.scales[i].name} | **${ammount}**\n`
+  }
+
     message.reply({
       "channel_id": `${message.channel.id}`,
       "content": "",
@@ -228,22 +440,22 @@ async function buy(message){
   let value = functions.getNthValue(message, 0)
   let id = message.user.id
   let shop_items = data.shop_items
+  let userData = functions.readData(data.json.user)
 
   let goldeggemoji = data.emoji.goldeggemoji
   for(i in shop_items){
     if(shop_items[i].value === value){
+      let aviable = userData.goldeneggs[id]
       let item = shop_items[i]
-      await functions.txtlookup(data.files.goldeneggs, id).then(async (aviable) => {
         var price = item.cost
       if (Number(aviable) >= price) {
         newgoldegg = aviable - price
         console.log(item)
-        functions.buyResponce(id, aviable, newgoldegg, item, message)
+        functions.buyResponce(id, newgoldegg, item, message)
         
       } else {
         message.reply(`You do not have enough to buy this item, you have ${goldeggemoji} ${aviable}/${price}`)
       }
-    })  
     }
   }
 
@@ -256,7 +468,8 @@ async function shop(message){
     console.log(i)
     shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].value}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
   }
-  await functions.txtlookup(data.files.goldeneggs, message.user.id).then((value) => {
+  
+  let value = await functions.readData(data.json.user).goldeneggs[message.user.id]
     message.reply({
       "channel_id": `${message.channel.id}`,
       "content": "",
@@ -279,16 +492,15 @@ async function shop(message){
         }
       ]
     });
-  })
 }
 
 function leaderboard(message){
   let type = message.options._hoistedOptions[0].value
   let file
   if(type === "event"){
-    file = data.files.splatfest
+    file = "event"
   } else {
-    file = data.files.scores
+    file = "scores"
   }
   functions.getusername(file).then(responce => {
     message.reply({
@@ -309,7 +521,7 @@ function leaderboard(message){
 
 
 function pong(message){
-  message.reply("Ping!")
+  message.reply("Pong!")
 }
 
 function dynamicCommand(typeOption){
@@ -318,28 +530,25 @@ function dynamicCommand(typeOption){
 
 }
 async function event(message){
-  await functions.txtlookup(data.files.main_txt, "event_start").then(async(start) => {
-    await functions.txtlookup(data.files.main_txt, "event_name").then(async(event) => {
-      now = Math.floor(new Date().getTime() / 1000)
-      console.log(`Now: ${now}`)
-      if (start === "none"){
-        message.reply("There are no upcoming events")
+  let globalData = await functions.readData(data.json.global)
+  let start = globalData.event.event_start
+  let end = globalData.event.event_end
+  let now = Math.floor(new Date().getTime() / 1000)
+  let event = globalData.event.event_name
+  let disc = globalData.event.event_disc
+
+  if (event === ""){
+    message.reply("There are no upcoming events")
+  } else {
+    if(start < now){
+      if(end > now){ 
+        message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
       } else {
-        await functions.txtlookup(data.files.main_txt, "event_disc").then(async(disc) => {
-          if (start < now){
-            await functions.txtlookup(data.files.main_txt, "event_end").then(async(end) => {
-              if(end > now){
-                message.reply(`There is an active ${event}! it ends in <t:${end}:R> on <t:${end}:f> \n Event Discription: \n ${disc}`)
-              } else {
-                message.reply("There are no upcoming events")
-              }
-            })
-          }  else {
-            message.reply(`Next event is a ${event}, it starts in <t:${start}:R> on <t:${start}:f> \n Event Discription: \n ${disc}`)
-          }
-        })
+        message.reply(`The ${event} has ended!`)
       }
-    })
-  })
+    } else {
+      message.reply(`Next ${event} starts in <t:${start}:R> on <t:${start}:f>`)
+    }
+  }
 }
 module.exports = [ commands, dynamicCommand ];
