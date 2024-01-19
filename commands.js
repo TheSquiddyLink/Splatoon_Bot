@@ -276,13 +276,7 @@ async function rotationMessage(mode){
   .addFields(
     {name: "Stage 2", value: rotationData.stage2.name},
   )
-  .setImage(rotationData.stage2.image)
-  
-  // let button = new ButtonBuilder()
-  // .setStyle(ButtonStyle.Secondary)
-  // .setLabel("Testing")
-  // .setCustomId("test")
-  
+  .setImage(rotationData.stage2.image)  
   let options = []
   
   for(el of data.modes){
@@ -297,7 +291,6 @@ async function rotationMessage(mode){
   .setPlaceholder(modeData[mode].name)
 
   let row = new ActionRowBuilder()
-  // .addComponents(button)
   .addComponents(menu)
 
   let embeds = [info, stage_1, stage_2]
