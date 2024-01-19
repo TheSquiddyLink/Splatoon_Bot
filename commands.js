@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
@@ -201,37 +201,46 @@ async function rotation(message){
 
   let response = await message.reply(rotMessage)
   
-  waitRotMenu(response, message)
+  waitRotMenu(response, message, 0 , mode)
 }
 
-async function editRotation(mode, response, message){
+async function editRotation(mode, response, message, session = 0){
+  console.log(`New Session: ${session}`)
   console.log(mode)
-  let rotMessage = await rotationMessage(mode)
+  let rotMessage = await rotationMessage(mode, session)
   response.edit(rotMessage)
-  waitRotMenu(response, message)
+  waitRotMenu(response, message, session, mode)
 }
 
-async function waitRotMenu(response, message){
+async function waitRotMenu(response, message, session = 0, mode){
   const collectorFilter = i => i.user.id === message.user.id;
 
   try{
     const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+    console.log(confirmation.customId)
+    await confirmation.deferUpdate();
+
     if(confirmation.customId === "mode"){
-      await confirmation.deferUpdate();
       console.log("Button Worked!")
-      console.log(confirmation.values)
       editRotation(confirmation.values[0], response, message)
+    } else if(confirmation.customId === "forward"){
+      
+      console.log(session + 1)
+      editRotation(mode, response, message, session + 1)
+    } else if(confirmation.customId === "back"){
+      editRotation(mode, response, message, session - 1)
     }
   } catch (e) {
     console.log("Timed out")
+    console.log(e)
     response.edit({content: response.content, components: []})
   }
 }
 
-async function rotationMessage(mode){
+async function rotationMessage(mode, session = 0){
   let modeData = data.modeValue 
 
-  let rotationData = await all_data(mode)
+  let rotationData = await all_data(mode, session)
   console.log(rotationData)
 
   let startTime = functions.toTimestamp(rotationData.start_time)
@@ -255,7 +264,7 @@ async function rotationMessage(mode){
   
   let info = new EmbedBuilder()
   .setTitle(`Rotation for ${modeData[mode].name}`)
-  .setDescription(`<t:${startTime}:t> - <t:${endTime}:t>`)
+  .setDescription(`<t:${startTime}:t> - <t:${endTime}:t> \n <t:${startTime}:d> - <t:${endTime}:d>`)
   .setThumbnail(modeData[mode].image)
 
   if(rulesEmbed){
@@ -306,7 +315,19 @@ async function rotationMessage(mode){
   .setCustomId("mode")
   .setPlaceholder(modeData[mode].name)
 
-  let row = new ActionRowBuilder()
+  let forward = new ButtonBuilder()
+  .setStyle(ButtonStyle.Secondary)
+  .setCustomId("forward")
+  .setLabel("⏩")
+
+  let back = new ButtonBuilder()
+  .setCustomId("back")
+  .setLabel("⏪")
+  .setStyle(ButtonStyle.Secondary)
+
+  let row1 = new ActionRowBuilder()
+  .addComponents(back, forward)
+  let row2 = new ActionRowBuilder()
   .addComponents(menu)
 
   let embeds = [info, stage_1, stage_2]
@@ -319,7 +340,7 @@ async function rotationMessage(mode){
     
   }
 
-  return {embeds: embeds, components: [row]}
+  return {embeds: embeds, components: [row1, row2]}
 
 } 
 
