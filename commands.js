@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder } = require('discord.js');
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnRandom, splatSalmon } = require('./salmon.js');
@@ -191,31 +191,80 @@ async function viewSplatfest(message){
   message.reply({embeds: embeds})
 }
 
-function toTimestamp(timeString){
-  let time = new Date(timeString)
-  let timeStamp = time.getTime() / 1000
-  return(String(timeStamp))
-}
+
 async function rotation(message){
  
   let mode = functions.getNthValue(message, 0)
   console.log(mode)
+
+  let rotMessage = await rotationMessage(mode)
+
+  let response = await message.reply(rotMessage)
   
+  waitRotMenu(response, message)
+}
+
+async function editRotation(mode, response, message){
+  console.log(mode)
+  let rotMessage = await rotationMessage(mode)
+  response.edit(rotMessage)
+  waitRotMenu(response, message)
+}
+
+async function waitRotMenu(response, message){
+  const collectorFilter = i => i.user.id === message.user.id;
+
+  try{
+    const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+    if(confirmation.customId === "mode"){
+      await confirmation.deferUpdate();
+      console.log("Button Worked!")
+      console.log(confirmation.values)
+      editRotation(confirmation.values[0], response, message)
+    }
+  } catch (e) {
+    console.log("Timed out")
+    response.edit({content: response.content, components: []})
+  }
+}
+
+async function rotationMessage(mode){
   let modeData = data.modeValue 
 
   let rotationData = await all_data(mode)
   console.log(rotationData)
-  let startTime = new Date(rotationData.start_time)
-  startTime = startTime.getTime() / 1000
 
-  let endTime = new Date(rotationData.end_time)
-  endTime = endTime.getTime() / 1000
+  let startTime = functions.toTimestamp(rotationData.start_time)
+
+  let endTime = functions.toTimestamp(rotationData.end_time)
   console.log(modeData[mode].image)
 
+  let rules
+  let rulesImage
+
+  let rulesEmbed = false
+  if(["open", "series"].includes(mode)){
+    rules = rotationData.rules
+    rulesImage = data.rules[rules]
+    rulesEmbed = true
+  }
+
+  console.log(rotationData.rulesImg)
+
+ 
+  
   let info = new EmbedBuilder()
   .setTitle(`Rotation for ${modeData[mode].name}`)
   .setDescription(`<t:${startTime}:t> - <t:${endTime}:t>`)
   .setThumbnail(modeData[mode].image)
+
+  if(rulesEmbed){
+    rulesEmbed = new EmbedBuilder()
+    .setTitle("Rules")
+    .setDescription(rules)
+    .setThumbnail(rulesImage)
+  }
+  
 
   let stage_1 = new EmbedBuilder()
   .addFields(
@@ -229,9 +278,34 @@ async function rotation(message){
   )
   .setImage(rotationData.stage2.image)
   
-  message.reply({embeds: [info, stage_1, stage_2]})
-   
-}
+  // let button = new ButtonBuilder()
+  // .setStyle(ButtonStyle.Secondary)
+  // .setLabel("Testing")
+  // .setCustomId("test")
+  
+  let options = []
+  
+  for(el of data.modes){
+    let option = new StringSelectMenuOptionBuilder()
+      .setLabel(el.name)
+      .setValue(el.value)
+    options.push(option)
+  }
+  let menu = new StringSelectMenuBuilder()
+  .addOptions(options)
+  .setCustomId("mode")
+  .setPlaceholder(modeData[mode].name)
+
+  let row = new ActionRowBuilder()
+  // .addComponents(button)
+  .addComponents(menu)
+
+  let embeds = [info, stage_1, stage_2]
+  if(rulesEmbed) embeds.splice(1, 0, rulesEmbed)
+
+  return {embeds: embeds, components: [row]}
+
+} 
 
 function item(message){
   let userData = functions.readData(data.json.user)
@@ -249,7 +323,6 @@ function item(message){
           } else {
             message.reply("You don't have enough Wave Breakers")
           }
-          
         }
     }
   }
@@ -411,7 +484,7 @@ function leaderboard(message){
 
 
 function pong(message){
-  message.reply("Ping!")
+  message.reply("Pong!")
 }
 
 function dynamicCommand(typeOption){

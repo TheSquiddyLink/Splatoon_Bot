@@ -130,6 +130,12 @@ const data = {
       image: "https://cdn.wikimg.net/en/splatoonwiki/images/thumb/f/f0/SplatNet_3_icon_Salmon_Run.svg/2048px-SplatNet_3_icon_Salmon_Run.svg.png"
     }
   },
+  rules: {
+    "Tower Control": "https://cdn.wikimg.net/en/splatoonwiki/images/b/bc/S3_icon_Tower_Control.png",
+    "Rainmaker": "https://cdn.wikimg.net/en/splatoonwiki/images/1/12/S3_icon_Rainmaker.png",
+    "Splat Zones": "https://cdn.wikimg.net/en/splatoonwiki/images/3/38/S3_icon_Splat_Zones.png",
+    "Clam Blitz": "https://cdn.wikimg.net/en/splatoonwiki/images/e/e3/S3_icon_Clam_Blitz.png"
+  },
   status_lines: 263,
 
   json: {
@@ -185,8 +191,10 @@ const client = new Client({
 });
 
 
-function timestamp(time){
-  
+function toTimestamp(timeString){
+  let time = new Date(timeString)
+  let timeStamp = time.getTime() / 1000
+  return(String(timeStamp))
 }
 
   async function getusername(type){
@@ -411,7 +419,8 @@ function timestamp(time){
     readData: readData,
     writeData: writeData,
     update_status: update_status,
-    startReset: startReset
+    startReset: startReset,
+    toTimestamp: toTimestamp
   }
 
   const optional = {
