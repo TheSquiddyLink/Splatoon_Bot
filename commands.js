@@ -418,37 +418,6 @@ async function inv(message){
    })
 
    message.reply({embeds: [embed]})
-
-    // message.reply({
-    //   "channel_id": `${message.channel.id}`,
-    //   "content": "",
-    //   "tts": false,
-    //   "embeds": [
-    //     {
-    //       "type": "rich",
-    //       "title": `Your Inventory`,
-    //       "description": `This shows you your items and scales ammount`,
-    //       "color": 0x00FFFF,
-    //       "fields": [
-    //         {
-    //           "name": `Items:`,
-    //           "value": `${inv}`
-    //         },
-    //         {
-    //           "name": `Scales:`,
-    //           "value": `${inv_scales}`
-    //         },
-    //         {
-    //           "name": `Golden Eggs`,
-    //           "value": `${data.emoji.goldeggemoji} ${goldeggammt}`
-    //         }
-    //       ],
-    //       "footer": {
-    //         "text": `Do !splat [salmon] item [CMD] to use an item`
-    //       }
-    //     }
-    //   ]
-    // });
 }
 function desc(message){
   let value = functions.getNthValue(message, 0)
@@ -519,19 +488,12 @@ function leaderboard(message){
     file = "scores"
   }
   functions.getusername(file).then(responce => {
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `Leaderboard!`,
-          "description": responce,
-          "color": 0x00FFFF
-        }
-      ]
-    });
+    let embed = new EmbedBuilder()
+    .setTitle(`Leaderboard!`)
+    .setDescription(responce)
+    .setColor(0x00FFFF)
+    
+    message.reply({embeds: [embed]})
   });
 }
 
