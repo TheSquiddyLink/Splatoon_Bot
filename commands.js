@@ -525,7 +525,7 @@ function pong(message){
 }
 
 function dynamicCommand(typeOption){
-  let type = data.salmon[typeOption]
+  
   commands.options.find(opt => opt.name === 'salmon').choices = salmonChoices;
 
 }
