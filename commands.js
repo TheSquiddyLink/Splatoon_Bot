@@ -470,28 +470,21 @@ async function shop(message){
   }
   
   let value = await functions.readData(data.json.user).goldeneggs[message.user.id]
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `${data.emoji.staff} Welcome to the shop!`,
-          "description": `You currently have ${data.emoji.goldeggemoji} **${value}**`,
-          "color": 0x00FFFF,
-          "fields": [
-            {
-              "name": `Items:`,
-              "value": `${shopmessage}`
-            }
-          ],
-          "footer": {
-            "text": `Do !buy [#] to purchase an item`
-          }
-        }
-      ]
-    });
+    let embed = new EmbedBuilder()
+    .setTitle(`${data.emoji.staff} Welcome to the shop!`)
+    .setDescription(`You currently have ${data.emoji.goldeggemoji} **${value}**`)
+    .setColor(0x00FFFF)
+    .setFields(
+      {
+        "name": `Items:`,
+        "value": `${shopmessage}`
+      }
+    )
+    .setFooter({
+       "text": `Do !buy [#] to purchase an item`
+     })
+
+    message.reply({embeds: [embed]})
 }
 
 function leaderboard(message){
