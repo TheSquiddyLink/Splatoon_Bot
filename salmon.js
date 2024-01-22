@@ -1,4 +1,5 @@
 const { data, functions, delay, optional } = require('./data.js')
+const { EmbedBuilder } = require("discord.js")
 
 function spawnRandom(message){
   var bosschance = Math.random()
@@ -23,25 +24,14 @@ async function spawnsalmon(type, message){
         console.log("Spawning King")
           for(i in salmon.king_salmon) {
             if (kingrand >= salmon.king_salmon[i].chance) {
-              message.reply({
-                            
-                "channel_id": `${message.channel.id}`,
-                "content": "",
-                "tts": false,
-                "embeds": [
-                  {
-                    "type": "rich",
-                    "title": `A ${salmon.king_salmon[i].name} spawned!`,
-                    "description": `Health: ${salmon.king_salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon.king_salmon[i].points}\n\nSay \`!splat ${salmon.king_salmon[i].name}\` to attack it`,
-                    "color": 0xfa8124,
-                    "image": {
-                      "url": `${salmon.king_salmon[i].image}`,
-                      "height": 0,
-                      "width": 0
-                    },
-                  }
-                ]
-              })
+              let embed = new EmbedBuilder()
+              .setTitle(`A ${salmon.king_salmon[i].name} spawned!`)
+              .setDescription(`Health: ${salmon.king_salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon.king_salmon[i].points}\n\nSay \`!splat ${salmon.king_salmon[i].name}\` to attack it`)
+              .setColor(0xfa8124)
+              .setImage(salmon.king_salmon[i].image)
+
+              message.reply({embeds: [embed]})
+              
               globalData.salmon.king = i
               globalData.health = salmon.king_salmon[i].health
               globalData.salmon_meter = 0
@@ -116,31 +106,18 @@ async function spawnsalmon(type, message){
                           }
                           
                           globalData.salmon_meter = salmon_meter2
-                          message.reply({
-                            
-                            "channel_id": `${message.channel.id}`,
-                            "content": "",
-                            "tts": false,
-                            "embeds": [
-                              {
-                                "type": "rich",
-                                "title": `A ${salmon[i].name} spawned!`,
-                                "description": `Health: ${salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon[i].points}\n\nSay \`!splat ${salmon[i].name}\` to attack it`,
-                                "color": 0xfa8124,
-                                "image": {
-                                  "url": `${salmon[i].image}`,
-                                  "height": 0,
-                                  "width": 0
-                                },
-                                "fields": [
-                                  {
-                                    "name": `Salmon Meter:`,
-                                    "value": `${data.sm_states[salmon_state]}${salmon_meter2}%`
-                                  }
-                                ],
-                              }
-                            ]
+
+                          let embed = new EmbedBuilder()
+                          .setTitle(`A ${salmon[i].name} spawned!`)
+                          .setDescription(`Health: ${salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon[i].points}\n\nSay \`!splat ${salmon[i].name}\` to attack it`)
+                          .setColor(0xfa8124)
+                          .setImage(salmon[i].image)
+                          .setFields({
+                            name: "Salmon Meter",
+                            value: `${data.sm_states[salmon_state]}${salmon_meter2}%`,
                           })
+
+                          message.reply({embeds: [embed]})
                       }
                       globalData.salmon[type] = i
                       globalData.health = salmon[i].health

@@ -396,36 +396,28 @@ async function inv(message){
     inv_scales = `${inv_scales}${data.scales[i].emoji} ${data.scales[i].name} | **${ammount}**\n`
   }
 
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `Your Inventory`,
-          "description": `This shows you your items and scales ammount`,
-          "color": 0x00FFFF,
-          "fields": [
-            {
-              "name": `Items:`,
-              "value": `${inv}`
-            },
-            {
-              "name": `Scales:`,
-              "value": `${inv_scales}`
-            },
-            {
-              "name": `Golden Eggs`,
-              "value": `${data.emoji.goldeggemoji} ${goldeggammt}`
-            }
-          ],
-          "footer": {
-            "text": `Do !splat [salmon] item [CMD] to use an item`
-          }
-        }
-      ]
-    });
+  let embed = new EmbedBuilder()
+  .setTitle(`Your Inventory`)
+  .setDescription(`This shows you your items and scales ammount`)
+  .setColor(0x00FFFF)
+  .addFields({
+    name: `Items:`,
+    value: `${inv}`
+   },
+   {
+    name: `Scales:`,
+    value: `${inv_scales}`
+   },
+   {
+    name: `Golden Eggs`,
+    value: `${data.emoji.goldeggemoji} ${goldeggammt}`
+   },
+  )
+  .setFooter({
+    text: `Do !splat [salmon] item [CMD] to use an item`
+   })
+
+   message.reply({embeds: [embed]})
 }
 function desc(message){
   let value = functions.getNthValue(message, 0)
@@ -470,28 +462,21 @@ async function shop(message){
   }
   
   let value = await functions.readData(data.json.user).goldeneggs[message.user.id]
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `${data.emoji.staff} Welcome to the shop!`,
-          "description": `You currently have ${data.emoji.goldeggemoji} **${value}**`,
-          "color": 0x00FFFF,
-          "fields": [
-            {
-              "name": `Items:`,
-              "value": `${shopmessage}`
-            }
-          ],
-          "footer": {
-            "text": `Do !buy [#] to purchase an item`
-          }
-        }
-      ]
-    });
+    let embed = new EmbedBuilder()
+    .setTitle(`${data.emoji.staff} Welcome to the shop!`)
+    .setDescription(`You currently have ${data.emoji.goldeggemoji} **${value}**`)
+    .setColor(0x00FFFF)
+    .setFields(
+      {
+        "name": `Items:`,
+        "value": `${shopmessage}`
+      }
+    )
+    .setFooter({
+       "text": `Do !buy [#] to purchase an item`
+     })
+
+    message.reply({embeds: [embed]})
 }
 
 function leaderboard(message){
@@ -503,19 +488,12 @@ function leaderboard(message){
     file = "scores"
   }
   functions.getusername(file).then(responce => {
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `Leaderboard!`,
-          "description": responce,
-          "color": 0x00FFFF
-        }
-      ]
-    });
+    let embed = new EmbedBuilder()
+    .setTitle(`Leaderboard!`)
+    .setDescription(responce)
+    .setColor(0x00FFFF)
+    
+    message.reply({embeds: [embed]})
   });
 }
 
