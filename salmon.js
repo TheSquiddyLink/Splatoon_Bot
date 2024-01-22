@@ -45,6 +45,7 @@ async function spawnsalmon(type, message){
               globalData.salmon.king = i
               globalData.health = salmon.king_salmon[i].health
               globalData.salmon_meter = 0
+              functions.writeData(data.json.global, globalData)
               break
             }
           } 
