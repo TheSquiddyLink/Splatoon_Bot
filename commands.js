@@ -396,36 +396,59 @@ async function inv(message){
     inv_scales = `${inv_scales}${data.scales[i].emoji} ${data.scales[i].name} | **${ammount}**\n`
   }
 
-    message.reply({
-      "channel_id": `${message.channel.id}`,
-      "content": "",
-      "tts": false,
-      "embeds": [
-        {
-          "type": "rich",
-          "title": `Your Inventory`,
-          "description": `This shows you your items and scales ammount`,
-          "color": 0x00FFFF,
-          "fields": [
-            {
-              "name": `Items:`,
-              "value": `${inv}`
-            },
-            {
-              "name": `Scales:`,
-              "value": `${inv_scales}`
-            },
-            {
-              "name": `Golden Eggs`,
-              "value": `${data.emoji.goldeggemoji} ${goldeggammt}`
-            }
-          ],
-          "footer": {
-            "text": `Do !splat [salmon] item [CMD] to use an item`
-          }
-        }
-      ]
-    });
+  let embed = new EmbedBuilder()
+  .setTitle(`Your Inventory`)
+  .setDescription(`This shows you your items and scales ammount`)
+  .setColor(0x00FFFF)
+  .addFields({
+    name: `Items:`,
+    value: `${inv}`
+   },
+   {
+    name: `Scales:`,
+    value: `${inv_scales}`
+   },
+   {
+    name: `Golden Eggs`,
+    value: `${data.emoji.goldeggemoji} ${goldeggammt}`
+   },
+  )
+  .setFooter({
+    text: `Do !splat [salmon] item [CMD] to use an item`
+   })
+
+   message.reply({embeds: [embed]})
+
+    // message.reply({
+    //   "channel_id": `${message.channel.id}`,
+    //   "content": "",
+    //   "tts": false,
+    //   "embeds": [
+    //     {
+    //       "type": "rich",
+    //       "title": `Your Inventory`,
+    //       "description": `This shows you your items and scales ammount`,
+    //       "color": 0x00FFFF,
+    //       "fields": [
+    //         {
+    //           "name": `Items:`,
+    //           "value": `${inv}`
+    //         },
+    //         {
+    //           "name": `Scales:`,
+    //           "value": `${inv_scales}`
+    //         },
+    //         {
+    //           "name": `Golden Eggs`,
+    //           "value": `${data.emoji.goldeggemoji} ${goldeggammt}`
+    //         }
+    //       ],
+    //       "footer": {
+    //         "text": `Do !splat [salmon] item [CMD] to use an item`
+    //       }
+    //     }
+    //   ]
+    // });
 }
 function desc(message){
   let value = functions.getNthValue(message, 0)
