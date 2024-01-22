@@ -1,4 +1,5 @@
 const { data, functions, delay, optional } = require('./data.js')
+const { EmbedBuilder } = require("discord.js")
 
 function spawnRandom(message){
   var bosschance = Math.random()
@@ -23,28 +24,36 @@ async function spawnsalmon(type, message){
         console.log("Spawning King")
           for(i in salmon.king_salmon) {
             if (kingrand >= salmon.king_salmon[i].chance) {
-              message.reply({
+              let embed = new EmbedBuilder()
+              .setTitle(`A ${salmon.king_salmon[i].name} spawned!`)
+              .setDescription(`Health: ${salmon.king_salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon.king_salmon[i].points}\n\nSay \`!splat ${salmon.king_salmon[i].name}\` to attack it`)
+              .setColor(0xfa8124)
+              .setImage(salmon.king_salmon[i].image)
+
+              message.reply({embeds: [embed]})
+              // message.reply({
                             
-                "channel_id": `${message.channel.id}`,
-                "content": "",
-                "tts": false,
-                "embeds": [
-                  {
-                    "type": "rich",
-                    "title": `A ${salmon.king_salmon[i].name} spawned!`,
-                    "description": `Health: ${salmon.king_salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon.king_salmon[i].points}\n\nSay \`!splat ${salmon.king_salmon[i].name}\` to attack it`,
-                    "color": 0xfa8124,
-                    "image": {
-                      "url": `${salmon.king_salmon[i].image}`,
-                      "height": 0,
-                      "width": 0
-                    },
-                  }
-                ]
-              })
+              //   "channel_id": `${message.channel.id}`,
+              //   "content": "",
+              //   "tts": false,
+              //   "embeds": [
+              //     {
+              //       "type": "rich",
+              //       "title": `A ${salmon.king_salmon[i].name} spawned!`,
+              //       "description": `Health: ${salmon.king_salmon[i].health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${gldegg}\nPower Eggs: ${data.emoji.powereggemoji} ${salmon.king_salmon[i].points}\n\nSay \`!splat ${salmon.king_salmon[i].name}\` to attack it`,
+              //       "color": 0xfa8124,
+              //       "image": {
+              //         "url": `${salmon.king_salmon[i].image}`,
+              //         "height": 0,
+              //         "width": 0
+              //       },
+              //     }
+              //   ]
+              // })
               globalData.salmon.king = i
               globalData.health = salmon.king_salmon[i].health
               globalData.salmon_meter = 0
+              functions.writeData(data.json.global, globalData)
               break
             }
           } 
