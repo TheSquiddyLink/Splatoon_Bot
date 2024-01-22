@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { config } = require('./config/config.js')
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -312,19 +312,12 @@ function toTimestamp(timeString){
               }
               await client.users.fetch(id).then(async (profilename) => {
                 console.log(profilename)
-                message.reply({
-                  "channel_id": `${message.channel.id}`,
-                  "content": "",
-                  "tts": false,
-                  "embeds": [
-                    {
-                      "type": "rich",
-                      "title": `Here is ${profilename.username}'s stats`,
-                      "description": `${statmessage}`,
-                      "color": 0x00FFFF
-                    }
-                  ]
-                })
+                let embed = new EmbedBuilder()
+                .setTitle(`Here is ${profilename.username}'s stats`)
+                .setDescription(`${statmessage}`)
+                .setColor(0x00FFFF)
+
+                message.reply({embeds: [embed]})
               })
           })
       } else {
