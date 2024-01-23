@@ -24,6 +24,8 @@ const rest = new REST({ version: '10' }).setToken(config.discord.token);
       console.log(`There was an error: ${error}`);
     }
   }
-  
+  console.log("All commands registered!");
+
+  process.exit();
 })();
 
