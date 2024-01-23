@@ -45,7 +45,7 @@ class salmon {
     
   }
   spawnSalmon() {
-    if(this.FAIL) return new EmbedBuilder().setDescription("There is already a salmon in this channel!")
+    if(this.FAIL) return [ new EmbedBuilder().setDescription("There is already a salmon in this channel!") ]
     let globalData = functions.readData(data.json.global)
     
     let salmonMeter = parseFloat((globalData.salmon_meter + Math.random()*5).toFixed(2))
@@ -73,7 +73,7 @@ class salmon {
     .setColor(0xfa8124)
     .setImage(this.salmonData.image)
 
-    return embed
+    return [ embed ]
   }
 
   async splat(damage, message) {
@@ -90,9 +90,11 @@ class salmon {
     if(this.salmonData.health <= 0){
       let userData = await this.updateStats(message)
       this.salmonData.health = 0
-      return new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`)
+      let splat = new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`)
+      return [ splat ]
     } else {
-      return new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
+      let splat = new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
+      return [ splat ]
     }
   }
 
@@ -119,7 +121,7 @@ class salmon {
     if(this.type === "king"){
       for(let i = 0; i < this.total_scales; i++){
         let rand = Math.round(Math.random() * 100)
-
+        
         let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length() - 1))]
         
         if(userData.scales[randID] === undefined){
@@ -169,7 +171,7 @@ async function classTest(message){
   let test = new salmon(message)
   console.log(test)
   console.log(allSalmon)
-  message.reply({embeds: [test.spawnSalmon()]})
+  message.reply({embeds: test.spawnSalmon()})
 }
 
 async function classSplat(message){
@@ -194,7 +196,7 @@ async function classSplat(message){
     messageContent = new EmbedBuilder().setDescription("There is no salmon in this channel!")
   }
   console.log(messageContent)
-  message.reply({embeds: [messageContent]})
+  message.reply({embeds: messageContent})
 }
 function spawnRandom(message){
   var bosschance = Math.random()
