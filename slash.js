@@ -7,8 +7,6 @@ const { spawnRandom } = require('./salmon.js')
 client.on('ready', async () => {
     console.log("Started")
     functions.update_status()
-    functions.startReset()
-   
 })
 client.on("messageCreate", async message => {
     if (!message.author.bot){
