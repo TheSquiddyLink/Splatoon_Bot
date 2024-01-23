@@ -1,14 +1,12 @@
 const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
 const { functions } = require('./data.js')
-const { spawnRandom } = require('./salmon.js')
+const { spawnSalmon } = require('./salmon.js')
 
 
 client.on('ready', async () => {
     console.log("Started")
     functions.update_status()
-    functions.startReset()
-   
 })
 client.on("messageCreate", async message => {
     if (!message.author.bot){
@@ -17,7 +15,7 @@ client.on("messageCreate", async message => {
         msgrand = Math.round(msgrand)
         console.log(msgrand)
         if(msgrand >= 95){
-            spawnRandom(message)
+            spawnSalmon(message)
         }
     }
 })

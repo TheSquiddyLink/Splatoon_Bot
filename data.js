@@ -62,16 +62,6 @@ const data = {
     {name: "health",value: "0"},
     {name: "cooldown",value: "false"},
   ],
-
-  resetvarsJson: [
-    {name: "lesser", parent: "salmon", value: "none"},
-    {name: "boss", parent: "salmon", value: "none"},
-    {name: "king", parent: "salmon", value: "none"},
-    {name: "health", value: 0},
-    {name: "cooldown", value: false},
-    {name: "king_ids", value: []},
-    {name: "cooldown", parent: "event", value: []}
-  ],
   sm_states: [
     "<:Salmometer0:1144024236114071615>",
     "<:Salmometer1:1144024234264367155>",
@@ -385,25 +375,6 @@ function toTimestamp(timeString){
     update_status()
   }
 
-  async function startReset(){
-    console.log("Start Reset")
-    let globalData = await readData(data.json.global)
-    console.log(globalData)
-    for(i in data.resetvarsJson){
-      console.log(data.resetvarsJson[i].parent)
-      if(data.resetvarsJson[i].parent){
-        console.log("Using Parent")
-        globalData[data.resetvarsJson[i].parent][data.resetvarsJson[i].name] = data.resetvarsJson[i].value 
-      } else {
-        globalData[data.resetvarsJson[i].name] = data.resetvarsJson[i].value
-      }
-    }
-    console.log(globalData)
-    writeData(data.json.global, globalData)
-    console.log("Reset Complete")
-  }
-
-
   const functions = {
     getusername: getusername,
     getNthValue: getNthValue,
@@ -412,14 +383,8 @@ function toTimestamp(timeString){
     readData: readData,
     writeData: writeData,
     update_status: update_status,
-    startReset: startReset,
     toTimestamp: toTimestamp
   }
 
-  const optional = {
-    addStats: addStats,
-    addscales: addscales,
-    mode: mode,
-  }
   client.login(config.discord.token);
-  module.exports = { data, functions, client, delay, optional}
+  module.exports = { data, functions, client, delay, mode }
