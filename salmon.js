@@ -89,9 +89,22 @@ class salmon {
     console.log(this.salmonData.health)
     if(this.salmonData.health <= 0){
       let userData = await this.updateStats(message)
+      let messages = []
+
+      if(this.type === "king"){
+
+        let arr = await optional.mode(this.kingIDs)
+
+        let percent = ((arr[1] / this.kingIDs.length) * 100).toFixed(2)
+        let id = arr[0]
+        messages.push(new EmbedBuilder().setDescription(`🥇 - <@${id}> (${percent}% of damage)`))
+        messages.push(new EmbedBuilder().setDescription(`You now the following scales: \n ${data.scales[0].emoji} ${userData.scales[message.user.id].Bronze} ${data.scales[1].emoji} ${userData.scales[message.user.id].Silver} ${data.scales[2].emoji} ${userData.scales[message.user.id].Gold}`))
+
+      }
       this.salmonData.health = 0
-      let splat = new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`)
-      return [ splat ]
+      messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`))
+      console.log(messages)
+      return messages
     } else {
       let splat = new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
       return [ splat ]
@@ -121,9 +134,10 @@ class salmon {
     if(this.type === "king"){
       for(let i = 0; i < this.total_scales; i++){
         let rand = Math.round(Math.random() * 100)
+        console.log(this.kingIDs)
+        let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length - 1))]
         
-        let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length() - 1))]
-        
+        console.log(userData.scales[randID])
         if(userData.scales[randID] === undefined){
           userData.scales[randID] = {
             Gold: 0,
@@ -131,6 +145,8 @@ class salmon {
             Bronze: 0
           }
         }
+        console.log("random value")
+        console.log(rand)
         
         if(rand >= 90) userData.scales[randID].Gold++
         else if(rand >= 75) userData.scales[randID].Silver++
@@ -180,21 +196,22 @@ async function classSplat(message){
   let messageContent
 
   let salName = functions.getNthValue(message, 0)
-  try {
+  if(allSalmon[serverID]){
     if (allSalmon[serverID][channelID]) {
       console.log(allSalmon[serverID][channelID].salmonData.name)
       if(allSalmon[serverID][channelID].salmonData.name === salName){
         messageContent = await allSalmon[serverID][channelID].splat(1, message)
         console.log(allSalmon[serverID][channelID].salmonData.health)
       } else {
-        messageContent = new EmbedBuilder().setDescription("Incorrect salmon!")
+        messageContent = [ new EmbedBuilder().setDescription("Incorrect salmon!") ]
       }
-
+    } else {
+      messageContent = [ new EmbedBuilder().setDescription("There is no salmon in this channel!") ]
     }
-  } catch (error) {
-    console.log(error)
-    messageContent = new EmbedBuilder().setDescription("There is no salmon in this channel!")
+  } else {
+    messageContent = [ new EmbedBuilder().setDescription("There is no salmon in this server!") ]
   }
+
   console.log(messageContent)
   message.reply({embeds: messageContent})
 }
