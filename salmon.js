@@ -30,11 +30,13 @@ class salmon {
         salmonTypes = data.salmon.lesser_salmon
       } else {
         this.type = "boss"
-        this.goldenEgg = Math.round(Math.random() * 3) + salmonTypes[this.salmonID].bonus
+        this.goldenEgg = Math.round(Math.random() * 3)
         salmonTypes = data.salmon.boss_salmon
       }
       this.salmonID = Math.round(Math.random() * (salmonTypes.length - 1))
       this.salmonData = salmonTypes[this.salmonID]
+
+      if(this.type === "boss") this.goldenEgg += salmonTypes[this.salmonID].bonus
       
 
       if(!allSalmon[this.serverID]) allSalmon[this.serverID] = {}
