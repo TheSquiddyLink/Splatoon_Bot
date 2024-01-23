@@ -414,7 +414,7 @@ async function inv(message){
    },
   )
   .setFooter({
-    text: `Do !splat [salmon] item [CMD] to use an item`
+    text: `Do /splat [salmon] item [CMD] to use an item`
    })
 
    message.reply({embeds: [embed]})
@@ -473,7 +473,7 @@ async function shop(message){
       }
     )
     .setFooter({
-       "text": `Do !buy [#] to purchase an item`
+       "text": `Do /buy [#] to purchase an item`
      })
 
     message.reply({embeds: [embed]})

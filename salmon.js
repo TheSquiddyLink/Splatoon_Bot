@@ -71,7 +71,7 @@ class salmon {
   spawnMessage() {
     let embed = new EmbedBuilder()
     .setTitle(`A ${this.salmonData.name} has spawned!`)
-    .setDescription(`Health: ${this.salmonData.health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\nPower Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`!splat ${this.salmonData.name}\` to attack it`)
+    .setDescription(`Health: ${this.salmonData.health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\nPower Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`/splat ${this.salmonData.name}\` to attack it`)
     .setColor(0xfa8124)
     .setImage(this.salmonData.image)
 
