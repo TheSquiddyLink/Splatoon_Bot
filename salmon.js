@@ -185,14 +185,14 @@ class salmon {
   }
 }
 
-async function classTest(message){
+async function spawnSalmon(message){
   let test = new salmon(message)
   console.log(test)
   console.log(allSalmon)
   message.reply({embeds: test.spawnSalmon()})
 }
 
-async function classSplat(message){
+async function splatSalmon(message){
   let serverID = message.guildId
   let channelID = message.channelId
   let messageContent
@@ -216,7 +216,7 @@ async function classSplat(message){
 
   console.log(messageContent)
   message.reply({embeds: messageContent})
-}
+}/*
 function spawnRandom(message){
   var bosschance = Math.random()
     bosschance =  bosschance * 100
@@ -575,5 +575,6 @@ async function spawnsalmon(type, message){
     }
 
   }
+    */
 
-  module.exports = { spawnsalmon, spawnRandom, splatSalmon, classTest, classSplat }
+  module.exports = { spawnSalmon, splatSalmon }
