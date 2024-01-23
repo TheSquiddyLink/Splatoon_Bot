@@ -1,7 +1,7 @@
 const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
-const { spawnRandom, splatSalmon } = require('./salmon.js');
+const { spawnRandom, splatSalmon, classTest, classSplat } = require('./salmon.js');
 
 const all_salmon = []
 
@@ -156,6 +156,33 @@ const commands = [
     name: "splatfest",
     description: "View the current splatfest",
     command: viewSplatfest,
+  },
+  {
+    name: "classtest",
+    description: "Testing Salmon Class",
+    command: classTest
+  },
+  {
+    name: "classsplat",
+    description: "Testing for splatting Salmon Class",
+    options: [
+      {
+        name: "salmon",
+        value: "salmon",
+        description: "The name of the salmon",
+        type: ApplicationCommandOptionType.String,
+        choices: all_salmon,
+        required: true,
+      },
+      {
+        name: "item",
+        value: "item",
+        description: "optional: Use an item",
+        type: ApplicationCommandOptionType.String,
+        choices: data.shop_items.filter(item => item.use_splat)
+      }
+    ],
+    command: classSplat
   }
 
 ];
