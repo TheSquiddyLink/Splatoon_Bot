@@ -1,4 +1,4 @@
-const { data, functions, delay, optional } = require('./data.js')
+const { data, functions, delay, mode } = require('./data.js')
 const { EmbedBuilder } = require("discord.js")
 
 var allSalmon = {}
@@ -95,7 +95,7 @@ class salmon {
 
       if(this.type === "king"){
 
-        let arr = await optional.mode(this.kingIDs)
+        let arr = await mode(this.kingIDs)
 
         let percent = ((arr[1] / this.kingIDs.length) * 100).toFixed(2)
         let id = arr[0]

@@ -386,10 +386,5 @@ function toTimestamp(timeString){
     toTimestamp: toTimestamp
   }
 
-  const optional = {
-    addStats: addStats,
-    addscales: addscales,
-    mode: mode,
-  }
   client.login(config.discord.token);
-  module.exports = { data, functions, client, delay, optional}
+  module.exports = { data, functions, client, delay, mode }
