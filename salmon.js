@@ -208,7 +208,10 @@ async function splatSalmon(message){
         messageContent = [ new EmbedBuilder().setDescription("Incorrect salmon!") ]
       }
     } else {
-      messageContent = [ new EmbedBuilder().setDescription("There is no salmon in this channel!") ]
+      console.log(allSalmon)
+      let key = Object.keys(allSalmon[serverID])[0]
+      console.log(allSalmon[serverID][key])
+      messageContent = [ new EmbedBuilder().setDescription(`There is no salmon in this channel! Possible channel: <#${key}>`) ]
     }
   } else {
     messageContent = [ new EmbedBuilder().setDescription("There is no salmon in this server!") ]
@@ -216,7 +219,9 @@ async function splatSalmon(message){
 
   console.log(messageContent)
   message.reply({embeds: messageContent})
-}/*
+}
+
+/*
 function spawnRandom(message){
   var bosschance = Math.random()
     bosschance =  bosschance * 100
