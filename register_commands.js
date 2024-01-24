@@ -10,7 +10,10 @@ console.log(config)
 
 const rest = new REST({ version: '10' }).setToken(config.discord.token);
 (async () => {
-  for (const server of config.discord.servers) {
+  const serverIds = Object.keys(config.discord.servers);
+
+for (const id of serverIds) {
+  const server = config.discord.servers[id];
     console.log(server)
     try {
       console.log(commands)
@@ -19,7 +22,7 @@ const rest = new REST({ version: '10' }).setToken(config.discord.token);
       await rest.put(
         Routes.applicationGuildCommands(
           config.discord.bot_id,
-          server.id
+          id
         ),
         { body: commands }
       );

@@ -157,8 +157,48 @@ const commands = [
     description: "View the current splatfest",
     command: viewSplatfest,
   },
+  {
+    name: "blockchannel",
+    description: "Toggle a channel from the bot responding",
+    options: [
+      {
+        name: "channel",
+        value: "channel",
+        description: "Specified Channel",
+        type: ApplicationCommandOptionType.Channel,
+        required: true
+      },
+    ],
+    command: blockChannel
+  }
 
 ];
+
+
+function blockChannel(message) {
+  let channel = functions.getNthValue(message, 0)
+  let config = functions.readData(data.json.config)
+  console.log(channel)
+
+  let blockedPath = config.discord.servers[message.guildId].settings.blocked_channels
+  if (functions.checkBlockedList(message, channel)) {
+    let index = blockedPath.indexOf(channel);
+    if (index > -1) {
+      blockedPath.splice(index, 1);
+    }
+    message.reply(`removing blocked channel <#${channel}>`)
+
+  } else {
+    blockedPath.push(channel);
+    message.reply(`adding blocked channel  <#${channel}>`)
+  }
+
+  config.discord.servers[message.guildId].settings.blocked_channels = blockedPath
+
+  functions.writeData(data.json.config, config)
+
+}
+
 
 async function viewSplatfest(message){
   let rawData = await splatfest()

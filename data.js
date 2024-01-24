@@ -376,6 +376,14 @@ function toTimestamp(timeString){
     update_status()
   }
 
+  function checkBlockedList(interaction, channel) {
+    let config = functions.readData(data.json.config)
+    if(!channel) channel = interaction.channelId
+
+    if(config.discord.servers[interaction.guildId].settings.blocked_channels.includes(channel)) return true
+    else return false
+  }
+
   const functions = {
     getusername: getusername,
     getNthValue: getNthValue,
@@ -384,7 +392,8 @@ function toTimestamp(timeString){
     readData: readData,
     writeData: writeData,
     update_status: update_status,
-    toTimestamp: toTimestamp
+    toTimestamp: toTimestamp,
+    checkBlockedList: checkBlockedList
   }
   const readWrite = {
     readData: readData,
