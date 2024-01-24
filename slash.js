@@ -1,6 +1,6 @@
 const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
-const { functions } = require('./data.js')
+const { functions, data } = require('./data.js')
 const { spawnSalmon } = require('./salmon.js')
 
 
@@ -22,6 +22,7 @@ client.on("messageCreate", async message => {
 
 client.on('interactionCreate', (interaction) => {
     if(!interaction.isChatInputCommand()) return;
+    if(checkBlockedList(interaction)) return interaction.reply("Channel is blocked")
     console.log(commands)
     console.log(interaction.commandName)
     const command = commands.find(cmd => cmd.name === interaction.commandName);
@@ -38,3 +39,8 @@ client.on('interactionCreate', (interaction) => {
 
 })
 
+function checkBlockedList(interaction) {
+    let config = functions.readData(data.json.config)
+    if(config.discord.servers[interaction.guildId].settings.blocked_channels.includes(interaction.channelId)) return true
+    else return false
+}

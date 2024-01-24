@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { config } = require('./config/config.js')
+const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -131,7 +131,8 @@ const data = {
   json: {
     global: "json/global_data.json",
     user:  "json/user_data.json",
-    status: "json/status.json"
+    status: "json/status.json",
+    config: "./config/config2.json",
   }
 }
 async function mode(array)
