@@ -1,12 +1,17 @@
-const { config } = require('./config/config.js')
-const [ commands ] = require('./commands.js')
+const [commands] = require('./commands.js')
 const { REST, Routes } = require('discord.js')
 
+const { readData } = require('./data.js')
 
+
+const config = readData('./config/config2.json')
+
+console.log(config)
 
 const rest = new REST({ version: '10' }).setToken(config.discord.token);
 (async () => {
-  for (const server of config.discord.server) {
+  for (const server of config.discord.servers) {
+    console.log(server)
     try {
       console.log(commands)
       console.log(`Registering slash commands for ${server.name}`);
@@ -29,5 +34,3 @@ const rest = new REST({ version: '10' }).setToken(config.discord.token);
   process.exit();
 
 })();
-
-

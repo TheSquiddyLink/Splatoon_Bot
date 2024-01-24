@@ -385,6 +385,10 @@ function toTimestamp(timeString){
     update_status: update_status,
     toTimestamp: toTimestamp
   }
+  const readWrite = {
+    readData: readData,
+    writeData: writeData
+  }
 
   client.login(config.discord.token);
-  module.exports = { data, functions, client, delay, mode }
+  module.exports = { data, functions, client, delay, mode, readWrite, readData, writeData }
