@@ -9,6 +9,7 @@ client.on('ready', async () => {
     functions.update_status()
 })
 client.on("messageCreate", async message => {
+    if(checkBlockedList(message)) return;
     if (!message.author.bot){
         var msgrand = Math.random()
         msgrand = msgrand * 100
