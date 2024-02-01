@@ -1,7 +1,7 @@
 const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
-const { spawnRandom, splatSalmon } = require('./salmon.js');
+const { spawnSalmon, splatSalmon } = require('./salmon.js');
 
 const all_salmon = []
 
@@ -156,9 +156,49 @@ const commands = [
     name: "splatfest",
     description: "View the current splatfest",
     command: viewSplatfest,
+  },
+  {
+    name: "blockchannel",
+    description: "Toggle a channel from the bot responding",
+    options: [
+      {
+        name: "channel",
+        value: "channel",
+        description: "Specified Channel",
+        type: ApplicationCommandOptionType.Channel,
+        required: true
+      },
+    ],
+    command: blockChannel
   }
 
 ];
+
+
+function blockChannel(message) {
+  let channel = functions.getNthValue(message, 0)
+  let config = functions.readData(data.json.config)
+  console.log(channel)
+
+  let blockedPath = config.discord.servers[message.guildId].settings.blocked_channels
+  if (functions.checkBlockedList(message, channel)) {
+    let index = blockedPath.indexOf(channel);
+    if (index > -1) {
+      blockedPath.splice(index, 1);
+    }
+    message.reply(`removing blocked channel <#${channel}>`)
+
+  } else {
+    blockedPath.push(channel);
+    message.reply(`adding blocked channel  <#${channel}>`)
+  }
+
+  config.discord.servers[message.guildId].settings.blocked_channels = blockedPath
+
+  functions.writeData(data.json.config, config)
+
+}
+
 
 async function viewSplatfest(message){
   let rawData = await splatfest()
@@ -354,7 +394,7 @@ function item(message){
         if(items[i].value === "WB"){
           console.log(userData.shop_items.WB[message.user.id])
           if(userData.shop_items.WB[message.user.id] >= 1){
-            spawnRandom(message)
+            spawnSalmon(message)
             userData.shop_items.WB[message.user.id] = userData.shop_items.WB[message.user.id] - 1
             functions.writeData(data.json.user, userData)
           } else {
@@ -414,7 +454,7 @@ async function inv(message){
    },
   )
   .setFooter({
-    text: `Do !splat [salmon] item [CMD] to use an item`
+    text: `Do /splat [salmon] item [CMD] to use an item`
    })
 
    message.reply({embeds: [embed]})
@@ -473,7 +513,7 @@ async function shop(message){
       }
     )
     .setFooter({
-       "text": `Do !buy [#] to purchase an item`
+       "text": `Do /buy [#] to purchase an item`
      })
 
     message.reply({embeds: [embed]})

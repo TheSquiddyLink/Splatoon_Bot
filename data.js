@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { config } = require('./config/config.js')
+const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const { sql, db } = require('./.database/sqlite.js')
@@ -63,16 +63,6 @@ const data = {
     {name: "king",value: "none"},
     {name: "health",value: "0"},
     {name: "cooldown",value: "false"},
-  ],
-
-  resetvarsJson: [
-    {name: "lesser", parent: "salmon", value: "none"},
-    {name: "boss", parent: "salmon", value: "none"},
-    {name: "king", parent: "salmon", value: "none"},
-    {name: "health", value: 0},
-    {name: "cooldown", value: false},
-    {name: "king_ids", value: []},
-    {name: "cooldown", parent: "event", value: []}
   ],
   sm_states: [
     "<:Salmometer0:1144024236114071615>",
@@ -143,7 +133,8 @@ const data = {
   json: {
     global: "json/global_data.json",
     user:  "json/user_data.json",
-    status: "json/status.json"
+    status: "json/status.json",
+    config: "./config/config2.json",
   }
 }
 async function mode(array)
@@ -367,24 +358,13 @@ function toTimestamp(timeString){
     update_status()
   }
 
-  async function startReset(){
-    console.log("Start Reset")
-    let globalData = await readData(data.json.global)
-    console.log(globalData)
-    for(i in data.resetvarsJson){
-      console.log(data.resetvarsJson[i].parent)
-      if(data.resetvarsJson[i].parent){
-        console.log("Using Parent")
-        globalData[data.resetvarsJson[i].parent][data.resetvarsJson[i].name] = data.resetvarsJson[i].value 
-      } else {
-        globalData[data.resetvarsJson[i].name] = data.resetvarsJson[i].value
-      }
-    }
-    console.log(globalData)
-    writeData(data.json.global, globalData)
-    console.log("Reset Complete")
-  }
+  function checkBlockedList(interaction, channel) {
+    let config = functions.readData(data.json.config)
+    if(!channel) channel = interaction.channelId
 
+    if(config.discord.servers[interaction.guildId].settings.blocked_channels.includes(channel)) return true
+    else return false
+  }
 
   const functions = {
     getusername: getusername,
@@ -394,14 +374,13 @@ function toTimestamp(timeString){
     readData: readData,
     writeData: writeData,
     update_status: update_status,
-    startReset: startReset,
-    toTimestamp: toTimestamp
+    toTimestamp: toTimestamp,
+    checkBlockedList: checkBlockedList
+  }
+  const readWrite = {
+    readData: readData,
+    writeData: writeData
   }
 
-  const optional = {
-    addStats: addStats,
-    addscales: addscales,
-    mode: mode,
-  }
   client.login(config.discord.token);
-  module.exports = { data, functions, client, delay, optional}
+  module.exports = { data, functions, client, delay, mode, readWrite, readData, writeData }

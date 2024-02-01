@@ -1,6 +1,227 @@
-const { data, functions, delay, optional } = require('./data.js')
+const { data, functions, delay, mode } = require('./data.js')
 const { EmbedBuilder } = require("discord.js")
 
+var allSalmon = {}
+
+class salmon {
+  constructor(message){
+    this.channelID = message.channelId
+    this.serverID = message.guildId
+
+    try {
+      if (allSalmon[serverID][channelID]) {
+        this.FAIL = true
+      }
+    } catch (error) {
+      let bossChance = Math.round(Math.random() * 100)
+      let globalData = functions.readData(data.json.global)
+      let salmon_meter = globalData.salmon_meter
+
+      let salmonTypes
+      if(salmon_meter === 100){
+        this.type = "king"
+        this.goldenEgg = 5
+        this.kingIDs = []
+        this.total_scales = Math.round(Math.random() * 20)
+
+        salmonTypes = data.salmon.king_salmon
+      } else if(bossChance <= 50){
+        this.type = "lesser"
+        salmonTypes = data.salmon.lesser_salmon
+      } else {
+        this.type = "boss"
+        this.goldenEgg = Math.round(Math.random() * 3)
+        salmonTypes = data.salmon.boss_salmon
+      }
+      this.salmonID = Math.round(Math.random() * (salmonTypes.length - 1))
+      this.salmonData = salmonTypes[this.salmonID]
+
+      if(this.type === "boss") this.goldenEgg += salmonTypes[this.salmonID].bonus
+      
+
+      if(!allSalmon[this.serverID]) allSalmon[this.serverID] = {}
+      allSalmon[this.serverID][this.channelID] = this 
+    }
+
+
+    
+  }
+  spawnSalmon() {
+    if(this.FAIL) return [ new EmbedBuilder().setDescription("There is already a salmon in this channel!") ]
+    let globalData = functions.readData(data.json.global)
+    
+    let salmonMeter = parseFloat((globalData.salmon_meter + Math.random()*5).toFixed(2))
+    if(this.type === "king"){
+      salmonMeter = 0
+    }
+    if(salmonMeter > 100){
+      salmonMeter = 100
+    }
+
+    globalData.salmon_meter = salmonMeter
+    functions.writeData(data.json.global, globalData)
+
+    delay(60000).then(() => {
+      this.removeSalmon()
+    })
+    
+    return this.spawnMessage()
+
+  }
+  spawnMessage() {
+    let embed = new EmbedBuilder()
+    .setTitle(`A ${this.salmonData.name} has spawned!`)
+    .setDescription(`Health: ${this.salmonData.health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\nPower Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`/splat ${this.salmonData.name}\` to attack it`)
+    .setColor(0xfa8124)
+    .setImage(this.salmonData.image)
+
+    return [ embed ]
+  }
+
+  async splat(damage, message) {
+    let splatemoji = data.emoji.splatemoji
+    if(this.type === "king"){
+      this.kingIDs.push(message.user.id)
+    }
+    
+    this.salmonData.health = this.salmonData.health - damage
+
+    
+
+    console.log(this.salmonData.health)
+    if(this.salmonData.health <= 0){
+      let userData = await this.updateStats(message)
+      let messages = []
+
+      if(this.type === "king"){
+
+        let arr = await mode(this.kingIDs)
+
+        let percent = ((arr[1] / this.kingIDs.length) * 100).toFixed(2)
+        let id = arr[0]
+        messages.push(new EmbedBuilder().setDescription(`🥇 - <@${id}> (${percent}% of damage)`))
+        messages.push(new EmbedBuilder().setDescription(`You now the following scales: \n ${data.scales[0].emoji} ${userData.scales[message.user.id].Bronze} ${data.scales[1].emoji} ${userData.scales[message.user.id].Silver} ${data.scales[2].emoji} ${userData.scales[message.user.id].Gold}`))
+
+      }
+      this.salmonData.health = 0
+      messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`))
+      console.log(messages)
+      return messages
+    } else {
+      let splat = new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
+      return [ splat ]
+    }
+  }
+
+  async updateStats(message){
+    let userData = await functions.readData(data.json.user)
+    let userid = message.user.id
+
+    let score = 0
+
+    if(!(userData.scores[message.user.id] === undefined)) score = userData.scores[message.user.id]
+
+    userData.scores[message.user.id] = score + this.salmonData.points
+    console.log("Scores")
+    console.log(userData.scores[message.user.id])
+
+    let goldenegg = 0
+    if(!(userData.goldeneggs[userid] === undefined)) goldenegg = userData.goldeneggs[userid]
+
+    userData.goldeneggs[userid] = goldenegg + this.goldenEgg
+
+    console.log("Goldeneggs")
+    console.log(userData.goldeneggs[userid])
+
+    if(this.type === "king"){
+      for(let i = 0; i < this.total_scales; i++){
+        let rand = Math.round(Math.random() * 100)
+        console.log(this.kingIDs)
+        let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length - 1))]
+        
+        console.log(userData.scales[randID])
+        if(userData.scales[randID] === undefined){
+          userData.scales[randID] = {
+            Gold: 0,
+            Silver: 0,
+            Bronze: 0
+          }
+        }
+        console.log("random value")
+        console.log(rand)
+        
+        if(rand >= 90) userData.scales[randID].Gold++
+        else if(rand >= 75) userData.scales[randID].Silver++
+        else userData.scales[randID].Bronze++
+      }
+
+    }
+
+    if(!(userData.stats.users[userid])){
+      userData.stats.users[userid] = []
+      for(i in userData.stats.syntax){
+        if(i === this.salmonID){
+          userData.stats.users[userid].push(1)
+        } else {
+          userData.stats.users[userid].push(0)
+        }
+      }
+    }
+    userData.stats.users[userid][this.salmonID]++
+
+    console.log("Stats")
+    console.log(userData.stats.users[userid])
+
+    functions.writeData(data.json.user, userData)
+
+    return userData
+  }
+
+  async removeSalmon() {
+    await delay(200)
+    console.log("Removed Salmon")
+    delete allSalmon[this.serverID][this.channelID]
+    delete this
+  }
+}
+
+async function spawnSalmon(message){
+  let test = new salmon(message)
+  console.log(test)
+  console.log(allSalmon)
+  message.reply({embeds: test.spawnSalmon()})
+}
+
+async function splatSalmon(message){
+  let serverID = message.guildId
+  let channelID = message.channelId
+  let messageContent
+
+  let salName = functions.getNthValue(message, 0)
+  if(allSalmon[serverID]){
+    if (allSalmon[serverID][channelID]) {
+      console.log(allSalmon[serverID][channelID].salmonData.name)
+      if(allSalmon[serverID][channelID].salmonData.name === salName){
+        messageContent = await allSalmon[serverID][channelID].splat(1, message)
+        console.log(allSalmon[serverID][channelID].salmonData.health)
+      } else {
+        messageContent = [ new EmbedBuilder().setDescription("Incorrect salmon!") ]
+      }
+    } else {
+      console.log(allSalmon)
+      let key = Object.keys(allSalmon[serverID])[0]
+      console.log(allSalmon[serverID][key])
+      messageContent = [ new EmbedBuilder().setDescription(`There is no salmon in this channel! Possible channel: <#${key}>`) ]
+    }
+  } else {
+    messageContent = [ new EmbedBuilder().setDescription("There is no salmon in this server!") ]
+  }
+
+  console.log(messageContent)
+  message.reply({embeds: messageContent})
+}
+
+/*
 function spawnRandom(message){
   var bosschance = Math.random()
     bosschance =  bosschance * 100
@@ -12,6 +233,7 @@ function spawnRandom(message){
       spawnsalmon("boss", message)
     }
 }
+
 async function spawnsalmon(type, message){
     let salmon = data.salmon
     let globalData = await functions.readData(data.json.global)
@@ -358,5 +580,6 @@ async function spawnsalmon(type, message){
     }
 
   }
+    */
 
-  module.exports = { spawnsalmon, spawnRandom, splatSalmon }
+  module.exports = { spawnSalmon, splatSalmon }
