@@ -2,6 +2,8 @@ const fs = require('fs');
 const { config } = require('./config/config.js')
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
+const { sql, db } = require('./.database/sqlite.js')
+
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const data = {
@@ -251,28 +253,8 @@ function toTimestamp(timeString){
   }
 
   async function addStats(userid){
-    let rawData = await readData(data.json.user)
-    console.log(rawData)
-    let statsData = rawData.stats
-    let syntax = statsData.syntax
-    console.log(statsData.users)
-    if(statsData.users[userid] === undefined){
-      let newUserData = []
-      for(i in syntax){
-        newUserData[i] = 0
-      }
-      console.log("New Data:")
-      console.log(newUserData)
-      statsData.users[userid] = newUserData
-      console.log(statsData.users)
 
-      rawData.stats.users = statsData.users
-
-      console.log("Final Data:")
-
-      writeData(data.json.user, rawData)
-
-    }
+    sql.INSERT(db, 'stats', ['id'], [userid])
 
   }
 
