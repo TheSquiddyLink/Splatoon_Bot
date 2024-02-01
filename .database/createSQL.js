@@ -23,11 +23,9 @@ if(fs.existsSync(output)){
         }
         rl.close();
       });
-    }
+    } else create()
   });
-} else {
-  create()
-}
+} else create()
 
 function create() {
   exec(sqliteCommand, { cwd: process.cwd() }, (error, stdout, stderr) => {

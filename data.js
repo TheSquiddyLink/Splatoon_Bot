@@ -2,7 +2,8 @@ const fs = require('fs');
 const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
-const { sql, db } = require('./.database/sqlite.js')
+const { sql, db } = require('./.database/sqlite.js');
+const { error } = require('console');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -243,60 +244,56 @@ function toTimestamp(timeString){
 
   }
 
-  async function addStats(userid){
-
-    sql.INSERT(db, 'stats', ['id'], [userid])
+  async function updateStats(id, key){
+    let column = ['id']
+    let values = [id]
+    if(key) column.unshift(key)
+    
+    await sql.INSERT(db, 'stats', ['id'], values)
+    return await sql.GET(db, 'stats', '*', 'id', String(id))
 
   }
 
-  function statsResponce(message, id){
-    userData = readData(data.json.user)
-    client.users.fetch(id).then(user => {
-      if(!user.bot){
-        let salmon = data.salmon
-          addStats(id).then(async () => {
-              let newstats = userData.stats.users[id]
-              var statmessage = ""
-              var count = 0
-              var type = ""
-              for( i in newstats) {
-                if(i == 17) {
-                  break
-                }
-                if(i == 15){
-                  count = 0
-                  statmessage = `${statmessage}═════════════\n` 
-                }
-                if(i == 3) {
-                  count = 0
-                  statmessage = `${statmessage}═════════════\n` 
-                }
-                if(i >= 3) {
-                  if (i >= 15){
-                    console.log("King!")
-                    type = salmon.king_salmon
-                  } else
-                    type = salmon.boss_salmon
-                } else{
-                  type =  salmon.lesser_salmon 
-              }
-                statmessage = `${statmessage}${type[count].emoji}${type[count].name} | ${newstats[i]}\n`
-                count = count + 1
-              }
-              await client.users.fetch(id).then(async (profilename) => {
-                console.log(profilename)
-                let embed = new EmbedBuilder()
-                .setTitle(`Here is ${profilename.username}'s stats`)
-                .setDescription(`${statmessage}`)
-                .setColor(0x00FFFF)
+  async function statsResponce(message, id){
+    console.log(id)
 
-                message.reply({embeds: [embed]})
-              })
-          })
-      } else {
-        message.reply("User provided is a bot")
+    client.users.fetch(id).then(async user => {
+      if(!user.bot) {
+        
+        let result = await updateStats(id)
+
+        let lesser = await sql.ALL(db, 'lesser_salmon', '*')
+        let boss = await sql.ALL(db, 'boss_salmon', '*')
+        let king = await sql.ALL(db, 'king_salmon', '*')
+        console.log("Boss: ")
+        console.log(boss)
+        let responce = ""
+        let part1 = ''
+        let keys = Reflect.ownKeys(result);
+        delete result[keys[0]]
+        console.log(result)
+        Object.keys(result).forEach((key, index) => {
+          console.log(key)
+          console.log(index)
+          if(index < lesser.length) part1 = `${lesser[index].emoji} ${lesser[index].name}`;
+          else if(index < lesser.length + boss.length) part1 = `${boss[index - lesser.length].emoji} ${boss[index - lesser.length].name}`;
+          else part1 = `${king[index - lesser.length - boss.length].emoji} ${king[index - lesser.length - boss.length].name}`;
+
+          
+          responce = responce.concat(`${part1} | ${result[key]}\n`)
+
+          if((index == lesser.length - 1) || (index == lesser.length + boss.length - 1)){
+            responce = responce.concat("=======================================\n")
+          }
+        });
+
+        let embed = new EmbedBuilder()
+        .setTitle(`Stats for ${user.displayName}`)
+        .setDescription(responce)
+        message.reply({embeds: [embed]})
       }
     })
+
     
   }
 
@@ -375,7 +372,8 @@ function toTimestamp(timeString){
     writeData: writeData,
     update_status: update_status,
     toTimestamp: toTimestamp,
-    checkBlockedList: checkBlockedList
+    checkBlockedList: checkBlockedList,
+    updateStats: updateStats
   }
   const readWrite = {
     readData: readData,
