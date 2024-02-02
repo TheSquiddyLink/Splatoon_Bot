@@ -21,6 +21,7 @@ CREATE TABLE `stats` (
 
 CREATE TABLE invintory (
     id INT PRIMARY KEY,
+    powerEggs INT DEFAULT 0,
     goldenEggs INT DEFAULT 0,
     wb INT DEFAULT 0,
     kw INT DEFAULT 0,
@@ -30,10 +31,6 @@ CREATE TABLE invintory (
     goldScale INT DEFAULT 0
 );
 
-CREATE TABLE powerEggs (
-    id INT PRIMARY KEY,
-    points INT DEFAULT 0
-);
 
 CREATE TABLE lesser_salmon (
     stats_id VARCHAR(255) PRIMARY KEY,

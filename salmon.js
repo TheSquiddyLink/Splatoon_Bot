@@ -119,7 +119,6 @@ class salmon {
 
   async updateStats(message){
     let invintory = await functions.getTable("invintory", message.user.id)
-    let powerEggs = await functions.getTable('powerEggs', message.user.id)
 
 
     if(this.type === "king"){
@@ -137,13 +136,19 @@ class salmon {
         sql.UPDATE(db, 'invintory', ['goldScale','silverScale', 'bronzeScale'], 'id', randID, [randInv.goldScale, randInv.silverScale, randInv.bronzeScale])
       }
     }
-    invintory.goldenEgg += this.goldenEgg
-    console.log(`Power Eggs:`)
-    powerEggs.points += this.salmonData.points
-    console.log(powerEggs)
-    sql.UPDATE(db, 'powerEggs', ['points'], 'id', message.user.id, [powerEggs.points])
-    sql.UPDATE(db, 'invintory', ['goldenEgg'], 'id', message.user.id, [invintory.goldenEgg])
-    return { score: powerEggs.points }
+    invintory.powerEggs += this.salmonData.points
+    let keys = ['powerEggs']
+    let values = [invintory.powerEggs]
+
+    if(this.type == 'boss'){
+      invintory.goldenEggs += this.goldenEgg
+      keys.push('goldenEggs')
+      values.push(invintory.goldenEggs)
+    }
+    
+    sql.UPDATE(db, 'invintory', keys, 'id', message.user.id, values)
+    
+    return { score: invintory.powerEggs }
   }
 
   async removeSalmon() {
@@ -154,7 +159,7 @@ class salmon {
   }
 }
 
-async function spawnSalmon(message){
+function spawnSalmon(message){
   let test = new salmon(message)
   console.log(test)
   console.log(allSalmon)
