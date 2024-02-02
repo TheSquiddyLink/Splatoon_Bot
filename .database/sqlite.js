@@ -22,19 +22,27 @@ const sql = (() => {
      *
      * @param {sqlite3.Database} db - The SQLite database object.
      * @param {string} table - The name of the table to update.
-     * @param {string[]} keys - An array of column names to update.
-     * @param {string} where - The Lookup Key to use to find the record to update.
-     * @param {Array} vals - An array of values to set for the specified columns. LAST VALUE iS THE LOOKUP VALUE
+     * @param {string[]} columns - An array of column names to update.
+     * @param {string} key - The Lookup Key to use to find the record to update.
+     * @param {string} id - The lookup value for the given key
+     * @param {Array} vals - An array of values to set for the specified columns.
     */
-    function UPDATE(db, table, keys, where, vals) {
+    async function UPDATE(db, table, columns, key, id , vals) {
         let tmp = '';
-        for (let i = 0; i < keys.length; i++) {
-            if (i == 0) tmp = keys[i] + '=?';
-            else tmp += ',' + keys[i] + '=?';
+        for (let i = 0; i < columns.length; i++) {
+            if (i == 0) tmp = columns[i] + '=?';
+            else tmp += ',' + columns[i] + '=?';
         }
-        let cmd = `UPDATE ${table} SET ${tmp} WHERE ${where} = ?`;
+        vals.push(id)
+        let cmd = `UPDATE ${table} SET ${tmp} WHERE ${key} = ?`;
+        console.log('Check Below')
         console.log(cmd);
-        RUN(db, cmd, vals);
+        console.log(vals)
+        return new Promise(async (resolve, reject) => {
+            let result = await RUN(db, cmd, vals)
+            resolve(result)
+
+        })
     }
 
     /**
@@ -143,6 +151,7 @@ const sql = (() => {
     */
 
     function RUN(db, cmd, vals) {
+        console.log(`Running command: ${cmd}`);
         return new Promise((resolve, reject) => {
             db.run(cmd, vals, function(err) {
                 if (err) {
@@ -154,6 +163,7 @@ const sql = (() => {
                         reject(err);
                     }
                 } else {
+                    console.log(`Changes: ${this.changes}`);
                     resolve({
                         changes: this.changes,
                         lastID: this.lastID

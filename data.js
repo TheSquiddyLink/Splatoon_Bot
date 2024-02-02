@@ -244,13 +244,13 @@ function toTimestamp(timeString){
 
   }
 
-  async function updateStats(id, key){
+  async function getTable(table, id, key){
     let column = ['id']
     let values = [id]
     if(key) column.unshift(key)
     
-    await sql.INSERT(db, 'stats', ['id'], values)
-    return await sql.GET(db, 'stats', '*', 'id', String(id))
+    await sql.INSERT(db, table, ['id'], values)
+    return await sql.GET(db, table, '*', 'id', String(id))
 
   }
 
@@ -260,7 +260,7 @@ function toTimestamp(timeString){
     client.users.fetch(id).then(async user => {
       if(!user.bot) {
         
-        let result = await updateStats(id)
+        let result = await getTable('stats', id)
 
         let lesser = await sql.ALL(db, 'lesser_salmon', '*')
         let boss = await sql.ALL(db, 'boss_salmon', '*')
@@ -373,7 +373,7 @@ function toTimestamp(timeString){
     update_status: update_status,
     toTimestamp: toTimestamp,
     checkBlockedList: checkBlockedList,
-    updateStats: updateStats
+    getTable: getTable
   }
   const readWrite = {
     readData: readData,

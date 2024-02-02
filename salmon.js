@@ -1,6 +1,8 @@
 const { data, functions, delay, mode } = require('./data.js')
 const { EmbedBuilder } = require("discord.js")
 
+const { sql, db } = require("./.database/sqlite.js")
+
 var allSalmon = {}
 
 class salmon {
@@ -69,9 +71,11 @@ class salmon {
 
   }
   spawnMessage() {
+    let goldenEggMSG = ""
+    if(this.type == "boss") goldenEggMSG = `Golden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\n`
     let embed = new EmbedBuilder()
     .setTitle(`A ${this.salmonData.name} has spawned!`)
-    .setDescription(`Health: ${this.salmonData.health}\nGolden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\nPower Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`/splat ${this.salmonData.name}\` to attack it`)
+    .setDescription(`Health: ${this.salmonData.health}\n${goldenEggMSG}Power Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`/splat ${this.salmonData.name}\` to attack it`)
     .setColor(0xfa8124)
     .setImage(this.salmonData.image)
 
@@ -104,7 +108,7 @@ class salmon {
 
       }
       this.salmonData.health = 0
-      messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.scores[message.user.id])} points`))
+      messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.score)} points`))
       console.log(messages)
       return messages
     } else {
@@ -114,67 +118,32 @@ class salmon {
   }
 
   async updateStats(message){
-    let userData = await functions.readData(data.json.user)
-    let userid = message.user.id
+    let invintory = await functions.getTable("invintory", message.user.id)
+    let powerEggs = await functions.getTable('powerEggs', message.user.id)
 
-    let score = 0
-
-    if(!(userData.scores[message.user.id] === undefined)) score = userData.scores[message.user.id]
-
-    userData.scores[message.user.id] = score + this.salmonData.points
-    console.log("Scores")
-    console.log(userData.scores[message.user.id])
-
-    let goldenegg = 0
-    if(!(userData.goldeneggs[userid] === undefined)) goldenegg = userData.goldeneggs[userid]
-
-    userData.goldeneggs[userid] = goldenegg + this.goldenEgg
-
-    console.log("Goldeneggs")
-    console.log(userData.goldeneggs[userid])
 
     if(this.type === "king"){
+      
       for(let i = 0; i < this.total_scales; i++){
         let rand = Math.round(Math.random() * 100)
         console.log(this.kingIDs)
         let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length - 1))]
         
-        console.log(userData.scales[randID])
-        if(userData.scales[randID] === undefined){
-          userData.scales[randID] = {
-            Gold: 0,
-            Silver: 0,
-            Bronze: 0
-          }
-        }
-        console.log("random value")
-        console.log(rand)
-        
-        if(rand >= 90) userData.scales[randID].Gold++
-        else if(rand >= 75) userData.scales[randID].Silver++
-        else userData.scales[randID].Bronze++
-      }
+        randInv = functions.getTable("invintory", randID)
 
-    }
-
-    if(!(userData.stats.users[userid])){
-      userData.stats.users[userid] = []
-      for(i in userData.stats.syntax){
-        if(i === this.salmonID){
-          userData.stats.users[userid].push(1)
-        } else {
-          userData.stats.users[userid].push(0)
-        }
+        if(rand >= 90) randInv.goldScale++
+        else if(rand >= 75) randInv.silverScale++
+        else randInv.bronzeScale++
+        sql.UPDATE(db, 'invintory', ['goldScale','silverScale', 'bronzeScale'], 'id', randID, [randInv.goldScale, randInv.silverScale, randInv.bronzeScale])
       }
     }
-    userData.stats.users[userid][this.salmonID]++
-
-    console.log("Stats")
-    console.log(userData.stats.users[userid])
-
-    functions.writeData(data.json.user, userData)
-
-    return userData
+    invintory.goldenEgg += this.goldenEgg
+    console.log(`Power Eggs:`)
+    powerEggs.points += this.salmonData.points
+    console.log(powerEggs)
+    sql.UPDATE(db, 'powerEggs', ['points'], 'id', message.user.id, [powerEggs.points])
+    sql.UPDATE(db, 'invintory', ['goldenEgg'], 'id', message.user.id, [invintory.goldenEgg])
+    return { score: powerEggs.points }
   }
 
   async removeSalmon() {

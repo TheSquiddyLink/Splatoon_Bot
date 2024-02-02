@@ -24,7 +24,15 @@ CREATE TABLE invintory (
     goldenEggs INT DEFAULT 0,
     wb INT DEFAULT 0,
     kw INT DEFAULT 0,
-    bb INT DEFAULT 0
+    bb INT DEFAULT 0,
+    bronzeScale INT DEFAULT 0,
+    silverScale INT DEFAULT 0,
+    goldScale INT DEFAULT 0
+);
+
+CREATE TABLE powerEggs (
+    id INT PRIMARY KEY,
+    points INT DEFAULT 0
 );
 
 CREATE TABLE lesser_salmon (
