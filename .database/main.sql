@@ -31,6 +31,11 @@ CREATE TABLE invintory (
     goldScale INT DEFAULT 0
 );
 
+CREATE TABLE blacklistChannels (
+    serverID INT,
+    channelID INT 
+);
+
 
 CREATE TABLE lesser_salmon (
     stats_id VARCHAR(255) PRIMARY KEY,

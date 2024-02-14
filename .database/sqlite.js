@@ -2,10 +2,8 @@
 
 const sqlite3 = require('sqlite3').verbose();
 
-// Replace 'your_database.sqlite3' with the path to your SQLite database file
 const dbPath = '.database\\data.sqlite3';
 
-// Open the SQLite database
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
   if (err) {
     console.error(err.message);
@@ -25,7 +23,7 @@ const sql = (() => {
      * @param {string[]} columns - An array of column names to update.
      * @param {string} key - The Lookup Key to use to find the record to update.
      * @param {string} id - The lookup value for the given key
-     * @param {Array} vals - An array of values to set for the specified columns.
+     * @param {string[]} vals - An array of values to set for the specified columns.
     */
     async function UPDATE(db, table, columns, key, id , vals) {
         let tmp = '';
@@ -52,7 +50,7 @@ const sql = (() => {
      * @param {string} table - The name of the table to update.
      * @param {string[]} keys - An array of column names to update. - "DEFAULT" fordefault variables
      * @param {string} where - The Lookup Key to use to find the record to update.
-     * @param {Array} vals - An array of values to set for the specified columns.
+     * @param {string[]} vals - An array of values to set for the specified columns.
     */
 
     async function INSERT(db, table, keys, vals) {
@@ -80,7 +78,7 @@ const sql = (() => {
      * 
      * @param {sqlite3.Database} db - The SQLite database object.
      * @param {string} table - The name of the table to update.
-     * @param {string[] | string} column - The column(s) to retrieve. * for all
+     * @param {string[] | string} column - The column(s) to retrieve.
      * @param {string} userId - The user ID to look up
      * @returns {object} Returns the row that was retrived as an object
      */
@@ -88,7 +86,7 @@ const sql = (() => {
     function GET(db, table, column, where, userId) {
         console.log(`User ID: ${userId}`)
         let part2 = '';
-        if(!(where === undefined)) {
+        if(!(userId === undefined)) {
             part2 = ` WHERE ${where} = ?`;
         } else {
             userId = []
@@ -174,11 +172,16 @@ const sql = (() => {
   
     }
 
+    function DELETE(db, table, where, value) {
+        let message = `DELETE FROM ${table} WHERE ${where} = ${value}`;
+        RUN(db, message, []);
+    }
     // Return only the public functions
     return {
         UPDATE,
         INSERT,
         GET,
+        DELETE,
         ALL
     };
 })();
