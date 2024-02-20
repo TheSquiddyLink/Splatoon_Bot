@@ -1,7 +1,8 @@
 const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
-const { functions, data } = require('./data.js')
+const { functions } = require('./data.js')
 const { spawnSalmon } = require('./salmon.js')
+const { sql, db } = require("./.database/sqlite.js")
 
 
 client.on('ready', async () => {
@@ -21,12 +22,18 @@ client.on("messageCreate", async message => {
     }
 })
 
-client.on('interactionCreate', (interaction) => {
+client.on('interactionCreate', async (interaction) => {
     if(!interaction.isChatInputCommand()) return;
-    if(checkBlockedList(interaction)) return interaction.reply("Channel is blocked")
+    console.log("Check Bellow")
+    const command = commands.find(cmd => cmd.name === interaction.commandName);
+    if(await checkBlockedList(interaction)) {
+        // If the channel is blocked, and the user is wanting to unlbock it, run command anyways
+        if(command.name === "blockchannel") return command.command(interaction);
+        else return interaction.reply("Channel is blocked");
+    }
     console.log(commands)
     console.log(interaction.commandName)
-    const command = commands.find(cmd => cmd.name === interaction.commandName);
+    
 
     if (command) {
         console.log("Found Command!");
@@ -40,8 +47,12 @@ client.on('interactionCreate', (interaction) => {
 
 })
 
-function checkBlockedList(interaction) {
-    let config = functions.readData(data.json.config)
-    if(config.discord.servers[interaction.guildId].settings.blocked_channels.includes(interaction.channelId)) return true
-    else return false
+async function checkBlockedList(interaction) {
+    let channel = await sql.GET(db, 'blacklistChannels', 'channelID', 'channelID', interaction.channelId)
+    console.log(channel)
+    if(channel) {
+        console.log("Blocked")
+        return true;
+    }
+    else return false;
 }
