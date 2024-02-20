@@ -1,6 +1,6 @@
 const fs = require('fs');
 const config = readData("./config/config2.json")
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, Interaction} = require('discord.js');
 
 const { sql, db } = require('./.database/sqlite.js');
 const { error } = require('console');
@@ -138,10 +138,15 @@ const data = {
     config: "./config/config2.json",
   }
 }
+
+/**
+ * 
+ * @param {Array} array 
+ * @returns 
+ */
 async function mode(array)
 {
-    if(array.length == 0)
-        return null;
+    if(array.length == 0) return null;
     var modeMap = {};
     var maxEl = array[0], maxCount = 1;
     for(var i = 0; i < array.length; i++)
@@ -184,12 +189,23 @@ const client = new Client({
     ]
 });
 
+/**
+ * 
+ * @param {string} timeString - String for the time
+ * @returns {string} - Timestamp string value
+ */
 
 function toTimestamp(timeString){
   let time = new Date(timeString)
   let timeStamp = time.getTime() / 1000
   return(String(timeStamp))
 }
+
+/**
+ * 
+ * @param {string} type 
+ * @returns {string} - Leaderboard Message
+ */
 
   async function getusername(type){
     let userData = readData(data.json.user)
@@ -253,6 +269,11 @@ function toTimestamp(timeString){
     return await sql.GET(db, table, '*', 'id', String(id))
 
   }
+  /**
+   * 
+   * @param {Interaction} message - Discord Interaction Object
+   * @param {string} id - User ID
+   */
 
   async function statsResponce(message, id){
     console.log(id)
@@ -297,6 +318,13 @@ function toTimestamp(timeString){
     
   }
 
+  /**
+   * 
+   * @param {Interaction} message 
+   * @param {Int} n - Option Index
+   * @returns 
+   */
+
   function getNthValue(message, n){
     try{
       return message.options._hoistedOptions[n].value
@@ -308,6 +336,13 @@ function toTimestamp(timeString){
     
   }
 
+  /**
+   * 
+   * @param {string} id - User ID
+   * @param {Int} newgoldegg - Golden Egg Ammount
+   * @param {ShopItem} item 
+   * @param {Interaction} message 
+   */
 
   async function buyResponce(id, newgoldegg, item, message){
     console.log(item.value)

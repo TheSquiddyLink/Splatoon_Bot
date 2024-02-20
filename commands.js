@@ -1,7 +1,8 @@
-const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction} = require('discord.js');
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnSalmon, splatSalmon } = require('./salmon.js');
+const { sql, db } = require("./.database/sqlite.js")
 
 const all_salmon = []
 
@@ -177,28 +178,28 @@ const commands = [
 
 function blockChannel(message) {
   let channel = functions.getNthValue(message, 0)
-  let config = functions.readData(data.json.config)
   console.log(channel)
-
-  let blockedPath = config.discord.servers[message.guildId].settings.blocked_channels
-  if (functions.checkBlockedList(message, channel)) {
-    let index = blockedPath.indexOf(channel);
-    if (index > -1) {
-      blockedPath.splice(index, 1);
+  console.log("Hello World")
+  let type = message.guild.channels.cache.get(channel).type
+  if(type == 4) return message.reply('You can not block a catigory');  
+  sql.GET(db, 'blacklistChannels', 'channelID', 'channelID', channel).then(async row => {
+    if(row){
+      console.log("found")
+      sql.DELETE(db, 'blacklistChannels', 'channelID', channel)
+      message.reply(`<#${channel}> is now unblocked`)
+    } else {
+      console.log("not found")
+      await sql.INSERT(db, 'blacklistChannels', ['serverId', 'channelID'], [ message.guild.id, channel ])
+      message.reply(`<#${channel}> is now blocked`)
     }
-    message.reply(`removing blocked channel <#${channel}>`)
-
-  } else {
-    blockedPath.push(channel);
-    message.reply(`adding blocked channel  <#${channel}>`)
-  }
-
-  config.discord.servers[message.guildId].settings.blocked_channels = blockedPath
-
-  functions.writeData(data.json.config, config)
+  })
 
 }
 
+/**
+ * 
+ * @param {Interaction} message 
+ */
 
 async function viewSplatfest(message){
   let rawData = await splatfest()
@@ -231,7 +232,10 @@ async function viewSplatfest(message){
   message.reply({embeds: embeds})
 }
 
-
+/**
+ * 
+ * @param {Interaction} message 
+ */
 async function rotation(message){
  
   let mode = functions.getNthValue(message, 0)
@@ -244,6 +248,14 @@ async function rotation(message){
   waitRotMenu(response, message, 0 , mode)
 }
 
+/**
+ * 
+ * @param {*} mode 
+ * @param {*} response 
+ * @param {Interaction} message 
+ * @param {Int} session - Index for session
+ */
+
 async function editRotation(mode, response, message, session = 0){
   console.log(`New Session: ${session}`)
   console.log(mode)
@@ -251,6 +263,13 @@ async function editRotation(mode, response, message, session = 0){
   response.edit(rotMessage)
   waitRotMenu(response, message, session, mode)
 }
+/**
+ * 
+ * @param {*} response 
+ * @param {Interaction} message 
+ * @param {Int} session 
+ * @param {*} mode 
+ */
 
 async function waitRotMenu(response, message, session = 0, mode){
   const collectorFilter = i => i.user.id === message.user.id;
@@ -383,6 +402,11 @@ async function rotationMessage(mode, session = 0){
   return {embeds: embeds, components: [row1, row2]}
 
 } 
+/**
+ * 
+ * @param {Interaction} message 
+ */
+
 
 function item(message){
   let userData = functions.readData(data.json.user)
@@ -405,15 +429,28 @@ function item(message){
   }
 
 }
-
+/**
+ * 
+ * @param {Interaction} message 
+ */
 function splat(message){
   splatSalmon(message)
 }
+
+/**
+ * 
+ * @param {Interaction} message 
+ */
 function stats(message){
   let value = functions.getNthValue(message, 0)
   functions.statsResponce(message, value)
 
 }
+
+/**
+ * 
+ * @param {Interaction} message 
+ */
 
 async function inv(message){
   let inv = ""
@@ -468,6 +505,11 @@ function desc(message){
   }
 }
 
+/**
+ * 
+ * @param {Interaction} message 
+ */
+
 async function buy(message){
   let value = functions.getNthValue(message, 0)
   let id = message.user.id
@@ -492,6 +534,11 @@ async function buy(message){
   }
 
 }
+
+/**
+ * 
+ * @param {Interaction} message 
+ */
 
 async function shop(message){
   let shopmessage = ""
@@ -519,6 +566,11 @@ async function shop(message){
     message.reply({embeds: [embed]})
 }
 
+
+/**
+ * 
+ * @param {Interaction} message 
+ */
 function leaderboard(message){
   let type = message.options._hoistedOptions[0].value
   let file
@@ -541,12 +593,10 @@ function leaderboard(message){
 function pong(message){
   message.reply("Pong!")
 }
-
-function dynamicCommand(typeOption){
-  
-  commands.options.find(opt => opt.name === 'salmon').choices = salmonChoices;
-
-}
+/**
+ * 
+ * @param {Interaction} message 
+ */
 async function event(message){
   let globalData = await functions.readData(data.json.global)
   let start = globalData.event.event_start
@@ -569,4 +619,4 @@ async function event(message){
     }
   }
 }
-module.exports = [ commands, dynamicCommand ];
+module.exports = [ commands ];
