@@ -65,14 +65,6 @@ const data = {
     {name: "health",value: "0"},
     {name: "cooldown",value: "false"},
   ],
-  sm_states: [
-    "<:Salmometer0:1144024236114071615>",
-    "<:Salmometer1:1144024234264367155>",
-    "<:Salmometer2:1144024233706532954>",
-    "<:Salmometer3:1144024232502755368>",
-    "<:Salmometer4:1144024229650645224>",
-    "<:Salmometer5:1144024231542280342>"
-  ],
   modes: [
     {
       name: "Turf War",
