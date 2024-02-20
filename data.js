@@ -3,7 +3,6 @@ const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder, Interaction} = require('discord.js');
 
 const { sql, db } = require('./.database/sqlite.js');
-const { error } = require('console');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
