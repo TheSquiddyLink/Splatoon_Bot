@@ -18,6 +18,7 @@ class salmon {
       let bossChance = Math.round(Math.random() * 100)
       let globalData = functions.readData(data.json.global)
       let salmon_meter = globalData.salmon_meter
+      this.salmonMeter = salmon_meter
 
       let salmonTypes
       if(salmon_meter === 100){
@@ -68,7 +69,7 @@ class salmon {
 
     delay(60000).then(() => {
       if(allSalmon[this.serverID]) if(allSalmon[this.serverID][this.channelID]) this.removeSalmon();
-      else console.log("Salmon is already removed")
+      else console.log("Salmon is already removed");
     })
     
     return this.spawnMessage()
@@ -76,10 +77,17 @@ class salmon {
   }
   spawnMessage() {
     let goldenEggMSG = ""
-    if(this.type == "boss") goldenEggMSG = `Golden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}\n`
+    if(this.type == "boss") goldenEggMSG = `Golden Eggs: ${data.emoji.goldeggemoji} ${this.goldenEgg}`
+    let salmonMeterPhase = Math.round(this.salmonMeter/100 * (data.emoji.sm_states.length - 1)) 
     let embed = new EmbedBuilder()
     .setTitle(`A ${this.salmonData.name} has spawned!`)
-    .setDescription(`Health: ${this.salmonData.health}\n${goldenEggMSG}Power Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n\nSay \`/splat ${this.salmonData.name}\` to attack it`)
+    .setDescription(
+      `Health: ${this.salmonData.health}
+      Salmon Meter: ${data.emoji.sm_states[salmonMeterPhase]} ${this.salmonMeter}%
+      ${goldenEggMSG}
+      Power Eggs: ${data.emoji.powereggemoji} ${this.salmonData.points}\n
+      Say \`/splat ${this.salmonData.name}\` to attack it`
+    )
     .setColor(0xfa8124)
     .setImage(this.salmonData.image)
 
@@ -100,7 +108,7 @@ class salmon {
     if(this.salmonData.health <= 0){
       let userData = await this.updateStats(message)
       let messages = []
-
+      // BUG: Application Crashes on Splat
       if(this.type === "king"){
 
         let arr = await mode(this.kingIDs)
