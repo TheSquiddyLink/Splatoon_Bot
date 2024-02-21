@@ -48,6 +48,9 @@ class salmon {
 
     
   }
+  addResponce(responce){
+    this.responce = responce
+  }
   spawnSalmon() {
     if(this.FAIL) return [ new EmbedBuilder().setDescription("There is already a salmon in this channel!") ]
     let globalData = functions.readData(data.json.global)
@@ -64,7 +67,8 @@ class salmon {
     functions.writeData(data.json.global, globalData)
 
     delay(60000).then(() => {
-      if(allSalmon[this.serverID][this.channelID]) this.removeSalmon();
+      if(allSalmon[this.serverID]) if(allSalmon[this.serverID][this.channelID]) this.removeSalmon();
+      else console.log("Salmon is already removed")
     })
     
     return this.spawnMessage()
@@ -110,9 +114,11 @@ class salmon {
       this.salmonData.health = 0
       messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.score)} points`))
       console.log(messages)
+      this.responce.edit({embeds: [ new EmbedBuilder().setDescription("The salmon has been Splatted!") ]})
       return {msg: messages}
     } else {
       let splat = new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
+      this.responce.edit({embeds: this.spawnMessage()})
       return {msg: [ splat ], hidden: true}
     }
   }
@@ -149,12 +155,13 @@ class salmon {
     
     sql.UPDATE(db, 'invintory', keys, 'id', message.user.id, values)
     let userStat = await sql.GET(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id)
-    userStat = userStat[this.salmonData.stats_id]
     console.log(`User stat:`)
     console.log(userStat)
     if(userStat ===  null) sql.INSERT(db, 'stats', ['id', this.salmonData.stats_id], [message.user.id, 1])
-    sql.UPDATE(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id, [userStat + 1])
-    this.removeSalmon()
+    else {
+      userStat = userStat[this.salmonData.stats_id]
+      sql.UPDATE(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id, [userStat + 1])
+    }this.removeSalmon()
     return { score: invintory.powerEggs }
   }
 
@@ -168,11 +175,12 @@ class salmon {
   }
 }
 
-function spawnSalmon(message){
+async function spawnSalmon(message){
   let test = new salmon(message)
   console.log(test)
   console.log(allSalmon)
-  message.reply({embeds: test.spawnSalmon()})
+  let responce = await message.reply({embeds: test.spawnSalmon()})
+  test.addResponce(responce)
 }
 
 async function splatSalmon(message){
@@ -205,7 +213,7 @@ async function splatSalmon(message){
 
   console.log(messageContent)
   if(hidden) message.reply({embeds: messageContent, ephemeral: hidden})
-  message.reply({embeds: messageContent})
+  else message.reply({embeds: messageContent});
 }
 
 /*
