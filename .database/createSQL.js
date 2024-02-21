@@ -1,3 +1,5 @@
+// NOTE: King Salmons have health set to 2
+
 const { exec } = require('child_process');
 const fs = require('fs');
 const readLine = require('readline');
