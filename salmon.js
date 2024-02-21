@@ -64,7 +64,7 @@ class salmon {
     functions.writeData(data.json.global, globalData)
 
     delay(60000).then(() => {
-      this.removeSalmon()
+      if(allSalmon[this.serverID][this.channelID]) this.removeSalmon();
     })
     
     return this.spawnMessage()
@@ -110,14 +110,15 @@ class salmon {
       this.salmonData.health = 0
       messages.push(new EmbedBuilder().setDescription(`You splatted a ${this.salmonData.name} ${splatemoji}  ${this.salmonData.emoji}\nYou now have ${Number(userData.score)} points`))
       console.log(messages)
-      return messages
+      return {msg: messages}
     } else {
       let splat = new EmbedBuilder().setDescription(`You hit it, and it has ${this.salmonData.health} health left!`)
-      return [ splat ]
+      return {msg: [ splat ], hidden: true}
     }
   }
 
   async updateStats(message){
+    console.log("Update Stats")
     let invintory = await functions.getTable("invintory", message.user.id)
 
 
@@ -147,7 +148,13 @@ class salmon {
     }
     
     sql.UPDATE(db, 'invintory', keys, 'id', message.user.id, values)
-    
+    let userStat = await sql.GET(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id)
+    userStat = userStat[this.salmonData.stats_id]
+    console.log(`User stat:`)
+    console.log(userStat)
+    if(userStat ===  null) sql.INSERT(db, 'stats', ['id', this.salmonData.stats_id], [message.user.id, 1])
+    sql.UPDATE(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id, [userStat + 1])
+    this.removeSalmon()
     return { score: invintory.powerEggs }
   }
 
@@ -155,6 +162,8 @@ class salmon {
     await delay(200)
     console.log("Removed Salmon")
     delete allSalmon[this.serverID][this.channelID]
+    if(Object.keys(allSalmon[this.serverID]).length === 0) delete allSalmon[this.serverID]
+    console.log(allSalmon)
     delete this
   }
 }
@@ -171,12 +180,15 @@ async function splatSalmon(message){
   let channelID = message.channelId
   let messageContent
 
+  let hidden = false
   let salName = functions.getNthValue(message, 0)
   if(allSalmon[serverID]){
     if (allSalmon[serverID][channelID]) {
       console.log(allSalmon[serverID][channelID].salmonData.name)
       if(allSalmon[serverID][channelID].salmonData.name === salName){
-        messageContent = await allSalmon[serverID][channelID].splat(1, message)
+        let splatData = await allSalmon[serverID][channelID].splat(1, message)
+        if(splatData.hidden) hidden = true
+        messageContent = splatData.msg
         console.log(allSalmon[serverID][channelID].salmonData.health)
       } else {
         messageContent = [ new EmbedBuilder().setDescription("Incorrect salmon!") ]
@@ -192,6 +204,7 @@ async function splatSalmon(message){
   }
 
   console.log(messageContent)
+  if(hidden) message.reply({embeds: messageContent, ephemeral: hidden})
   message.reply({embeds: messageContent})
 }
 
