@@ -10,7 +10,9 @@ client.on('ready', async () => {
     functions.update_status()
 })
 client.on("messageCreate", async message => {
-    if(checkBlockedList(message)) return;
+    console.log("Hello!")
+    if(await checkBlockedList(message)) return;
+    console.log("Starting Random Spawn")
     if (!message.author.bot){
         var msgrand = Math.random()
         msgrand = msgrand * 100
@@ -48,11 +50,15 @@ client.on('interactionCreate', async (interaction) => {
 })
 
 async function checkBlockedList(interaction) {
-    let channel = await sql.GET('blacklistChannels', 'channelID', 'channelID', interaction.channelId)
-    console.log(channel)
-    if(channel) {
-        console.log("Blocked")
-        return true;
-    }
-    else return false;
+    return new Promise(async (resolve) => {
+        let channel = await sql.GET('blacklistChannels', 'channelID', 'channelID', interaction.channelId)
+        console.log("Hello2!")
+        console.log(channel)
+        if(channel) {
+            console.log("Blocked")
+            resolve(true);
+        }
+        else resolve(false);
+    })
+
 }
