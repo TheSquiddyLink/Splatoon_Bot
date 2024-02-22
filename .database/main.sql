@@ -22,10 +22,10 @@ CREATE TABLE `stats` (
 CREATE TABLE invintory (
     id INT PRIMARY KEY,
     powerEggs INT DEFAULT 0,
-    goldenEggs INT DEFAULT 0,
-    wb INT DEFAULT 0,
-    kw INT DEFAULT 0,
-    bb INT DEFAULT 0,
+    goldenEggs INT DEFAULT 999,
+    WB INT DEFAULT 0,
+    KW INT DEFAULT 0,
+    BB INT DEFAULT 0,
     bronzeScale INT DEFAULT 0,
     silverScale INT DEFAULT 0,
     goldScale INT DEFAULT 0
