@@ -408,19 +408,18 @@ async function rotationMessage(mode, session = 0){
  */
 
 
-function item(message){
-  let userData = functions.readData(data.json.user)
+async function item(message){
+  let userInv = await sql.GET(db, 'invintory', ['*'], 'id', message.user.id)
   let items = data.shop_items.filter(item => !item.use_splat)
   for(i in items){
     if(items[i].value === functions.getNthValue(message, 0)){
         items[i].command
         console.log(items[i].value)
         if(items[i].value === "WB"){
-          console.log(userData.shop_items.WB[message.user.id])
-          if(userData.shop_items.WB[message.user.id] >= 1){
+          if(userInv.WB >= 1){
             spawnSalmon(message)
-            userData.shop_items.WB[message.user.id] = userData.shop_items.WB[message.user.id] - 1
-            functions.writeData(data.json.user, userData)
+            userInv.WB -= 1
+            sql.UPDATE(db, 'invintory', ['WB'], 'id', message.user.id, userInv.WB)
           } else {
             message.reply("You don't have enough Wave Breakers")
           }

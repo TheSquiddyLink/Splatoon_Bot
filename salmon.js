@@ -34,7 +34,6 @@ class salmon {
         this.goldenEgg = Math.round(Math.random() * 3)
         salmonTypes = data.salmon.boss_salmon
       }
-      // TODO: Salmon ID based on Weight (chance value)
       const cumulativeWeights = [];
       let totalWeight = 0;
       for (const item of salmonTypes) {
