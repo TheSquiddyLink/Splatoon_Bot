@@ -104,6 +104,9 @@ class salmon {
     console.log(this.salmonData.health)
     if(this.salmonData.health <= 0){
       let userData = await this.updateStats(message)
+      let userInv = await sql.GET(db, 'invintory', ['*'], 'id', message.user.id )
+      console.log("User Inv:")
+      console.log(userInv)
       let messages = []
       // BUG: Application Crashes on Splat
       if(this.type === "king"){
@@ -113,7 +116,7 @@ class salmon {
         let percent = ((arr[1] / this.kingIDs.length) * 100).toFixed(2)
         let id = arr[0]
         messages.push(new EmbedBuilder().setDescription(`🥇 - <@${id}> (${percent}% of damage)`))
-        messages.push(new EmbedBuilder().setDescription(`You now the following scales: \n ${data.scales[0].emoji} ${userData.scales[message.user.id].Bronze} ${data.scales[1].emoji} ${userData.scales[message.user.id].Silver} ${data.scales[2].emoji} ${userData.scales[message.user.id].Gold}`))
+        messages.push(new EmbedBuilder().setDescription(`You now the following scales: \n ${data.scales[0].emoji} ${userInv.bronzeScale} ${data.scales[1].emoji} ${userInv.silverScale} ${data.scales[2].emoji} ${userInv.goldScale}`))
 
       }
       this.salmonData.health = 0
@@ -140,7 +143,9 @@ class salmon {
         console.log(this.kingIDs)
         let randID = this.kingIDs[Math.round(Math.random() * (this.kingIDs.length - 1))]
         
-        randInv = functions.getTable("invintory", randID)
+        let randInv = await functions.getTable("invintory", randID)
+        console.log("Rand Inv:")
+        console.log(randInv)
 
         if(rand >= 90) randInv.goldScale++
         else if(rand >= 75) randInv.silverScale++
