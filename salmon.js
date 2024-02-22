@@ -9,12 +9,10 @@ class salmon {
   constructor(message){
     this.channelID = message.channelId
     this.serverID = message.guildId
-
-    try {
-      if (allSalmon[serverID][channelID]) {
-        this.FAIL = true
-      }
-    } catch (error) {
+    console.log("All Salmon:")
+    console.log(allSalmon)
+    if(allSalmon[this.serverID]) if(allSalmon[this.serverID][this.channelID]) this.FAIL = true;
+    console.log("Salmon Status: ", this.FAIL)
       let bossChance = Math.round(Math.random() * 100)
       let globalData = functions.readData(data.json.global)
       let salmon_meter = globalData.salmon_meter
@@ -44,7 +42,6 @@ class salmon {
 
       if(!allSalmon[this.serverID]) allSalmon[this.serverID] = {}
       allSalmon[this.serverID][this.channelID] = this 
-    }
 
 
     
