@@ -3,6 +3,7 @@ const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder, Interaction} = require('discord.js');
 
 const { sql, db } = require('./.database/sqlite.js');
+const { table } = require('console');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -335,24 +336,15 @@ function toTimestamp(timeString){
    * @param {Interaction} message 
    */
 
-  async function buyResponce(id, newgoldegg, item, message){
+  async function buyResponce(id, newgoldegg, item, message, userInv){
     console.log(item.value)
-    let userData = await readData(data.json.user)
     goldeggemoji = data.emoji.goldeggemoji
+    userInv.goldenEggs = newgoldegg
+    userInv[item.value] += item.mult
 
-    userData.goldeneggs[id] = newgoldegg
-    let current = userData.shop_items[item.value][id]
-    if(userData.shop_items[item.value][id] === undefined){
-      userData.shop_items[item.value][id] = 1
-      current = 1
-    } else {
-      userData.shop_items[item.value][id] = userData.shop_items[item.value][id] + 1
-      current++
-    }
-
+    sql.UPDATE(db, 'invintory', ['goldenEggs', item.value], 'id', id, [newgoldegg, userInv[item.value]])
     
-    message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${current})** ${item.name} `)
-    writeData(data.json.user, userData)
+    message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${userInv[item.value]})** ${item.name} `)
   }
   
   async function update_status(){
