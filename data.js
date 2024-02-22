@@ -2,8 +2,7 @@ const fs = require('fs');
 const config = readData("./config/config2.json")
 const { Client, GatewayIntentBits, EmbedBuilder, Interaction} = require('discord.js');
 
-const { sql, db } = require('./.database/sqlite.js');
-const { table } = require('console');
+const { sql } = require('./.database/sqlite.js');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -257,8 +256,8 @@ function toTimestamp(timeString){
     let values = [id]
     if(key) column.unshift(key)
     
-    await sql.INSERT(db, table, ['id'], values)
-    return await sql.GET(db, table, '*', 'id', String(id))
+    await sql.INSERT(table, ['id'], values)
+    return await sql.GET(table, '*', 'id', String(id))
 
   }
   /**
@@ -342,7 +341,7 @@ function toTimestamp(timeString){
     userInv.goldenEggs = newgoldegg
     userInv[item.value] += item.mult
 
-    sql.UPDATE(db, 'invintory', ['goldenEggs', item.value], 'id', id, [newgoldegg, userInv[item.value]])
+    sql.UPDATE('invintory', ['goldenEggs', item.value], 'id', id, [newgoldegg, userInv[item.value]])
     
     message.reply(`You now have ${goldeggemoji} ${newgoldegg} and **+${1*item.mult} (${userInv[item.value]})** ${item.name} `)
   }

@@ -111,7 +111,7 @@ class salmon {
     console.log(this.salmonData.health)
     if(this.salmonData.health <= 0){
       let userData = await this.updateStats(message)
-      let userInv = await sql.GET(db, 'invintory', ['*'], 'id', message.user.id )
+      let userInv = await sql.GET('invintory', ['*'], 'id', message.user.id )
       console.log("User Inv:")
       console.log(userInv)
       let messages = []
@@ -156,7 +156,7 @@ class salmon {
         if(rand >= 90) randInv.goldScale++
         else if(rand >= 75) randInv.silverScale++
         else randInv.bronzeScale++
-        sql.UPDATE(db, 'invintory', ['goldScale','silverScale', 'bronzeScale'], 'id', randID, [randInv.goldScale, randInv.silverScale, randInv.bronzeScale])
+        sql.UPDATE('invintory', ['goldScale','silverScale', 'bronzeScale'], 'id', randID, [randInv.goldScale, randInv.silverScale, randInv.bronzeScale])
       }
     }
     invintory.powerEggs += this.salmonData.points
@@ -169,14 +169,14 @@ class salmon {
       values.push(invintory.goldenEggs)
     }
     
-    sql.UPDATE(db, 'invintory', keys, 'id', message.user.id, values)
-    let userStat = await sql.GET(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id)
+    sql.UPDATE('invintory', keys, 'id', message.user.id, values)
+    let userStat = await sql.GET('stats', [this.salmonData.stats_id], 'id', message.user.id)
     console.log(`User stat:`)
     console.log(userStat)
-    if(userStat ===  null) sql.INSERT(db, 'stats', ['id', this.salmonData.stats_id], [message.user.id, 1])
+    if(userStat ===  null) sql.INSERT('stats', ['id', this.salmonData.stats_id], [message.user.id, 1])
     else {
       userStat = userStat[this.salmonData.stats_id]
-      sql.UPDATE(db, 'stats', [this.salmonData.stats_id], 'id', message.user.id, [userStat + 1])
+      sql.UPDATE('stats', [this.salmonData.stats_id], 'id', message.user.id, [userStat + 1])
     }this.removeSalmon()
     return { score: invintory.powerEggs }
   }

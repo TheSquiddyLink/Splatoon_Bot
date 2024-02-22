@@ -17,15 +17,13 @@ const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
 const sql = (() => {
     /**
      * Update records in a table.
-     *
-     * @param {sqlite3.Database} db - The SQLite database object.
      * @param {string} table - The name of the table to update.
      * @param {string[]} columns - An array of column names to update.
      * @param {string} key - The Lookup Key to use to find the record to update.
      * @param {string} id - The lookup value for the given key
      * @param {string[]} vals - An array of values to set for the specified columns.
     */
-    async function UPDATE(db, table, columns, key, id , vals) {
+    async function UPDATE(table, columns, key, id , vals) {
         let tmp = '';
         for (let i = 0; i < columns.length; i++) {
             if (i == 0) tmp = columns[i] + '=?';
@@ -37,7 +35,7 @@ const sql = (() => {
         console.log(cmd);
         console.log(vals)
         return new Promise(async (resolve, reject) => {
-            let result = await RUN(db, cmd, vals)
+            let result = await RUN(cmd, vals)
             resolve(result)
 
         })
@@ -46,14 +44,13 @@ const sql = (() => {
     /**
      * Insert record in a table.
      *
-     * @param {sqlite3.Database} db - The SQLite database object.
      * @param {string} table - The name of the table to update.
      * @param {string[]} keys - An array of column names to update. - "DEFAULT" fordefault variables
      * @param {string} where - The Lookup Key to use to find the record to update.
      * @param {string[]} vals - An array of values to set for the specified columns.
     */
 
-    async function INSERT(db, table, keys, vals) {
+    async function INSERT(table, keys, vals) {
         let tmp = '';
         if(vals){
             for (let i = 0; i < keys.length; i++) {
@@ -68,22 +65,21 @@ const sql = (() => {
         let cmd = `INSERT INTO ${table} ${keys} VALUES${tmp}`;
         console.log(cmd);
         return new Promise(async (resolve, reject) => {
-            let result = await RUN(db, cmd, vals)
+            let result = await RUN(cmd, vals)
             resolve(result)
 
         })
         
     }
     /**
-     * 
-     * @param {sqlite3.Database} db - The SQLite database object.
+     *     
      * @param {string} table - The name of the table to update.
      * @param {string[] | string} column - The column(s) to retrieve.
      * @param {string} userId - The user ID to look up
      * @returns {object} Returns the row that was retrived as an object
      */
 
-    function GET(db, table, column, where, userId) {
+    function GET(table, column, where, userId) {
         console.log(`User ID: ${userId}`)
         let part2 = '';
         if(!(userId === undefined)) {
@@ -117,14 +113,13 @@ const sql = (() => {
     }
 
     /**
-     * 
-     * @param {sqlite3.Database} db - The SQLite database object.
+     *     
      * @param {string} table - The name of the table to update.
      * @param {string[] | string} column - The column(s) to retrieve. * for all
      * @returns {object} - Returns all the rows in the table as an array of objects
      */
 
-    function ALL(db, table, column){
+    function ALL(table, column){
         let cmd = `SELECT ${column} FROM ${table}`
 
         return new Promise((resolve, reject) => {
@@ -142,13 +137,12 @@ const sql = (() => {
 
     /**
      * Private function to execute a database command.
-     *
-     * @param {sqlite3.Database} db - The SQLite database object.
+     *  
      * @param {string} cmd - The SQL command to execute.
      * @param {Array} vals - An array of values to be used in the SQL command.
     */
 
-    function RUN(db, cmd, vals) {
+    function RUN(cmd, vals) {
         console.log(`Running command: ${cmd}`);
         return new Promise((resolve, reject) => {
             db.run(cmd, vals, function(err) {
@@ -172,9 +166,9 @@ const sql = (() => {
   
     }
 
-    function DELETE(db, table, where, value) {
+    function DELETE(table, where, value) {
         let message = `DELETE FROM ${table} WHERE ${where} = ${value}`;
-        RUN(db, message, []);
+        RUN(message, []);
     }
     // Return only the public functions
     return {
@@ -186,4 +180,4 @@ const sql = (() => {
     };
 })();
 
-module.exports = { sql, db };
+module.exports = { sql };

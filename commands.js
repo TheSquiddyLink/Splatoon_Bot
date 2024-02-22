@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType, EmbedBuilder, StringSelectMenuBuilder, Str
 const { data, functions } = require('./data.js')
 const [ all_data, splatfest ] = require('./splatoon3api.js')
 const { spawnSalmon, splatSalmon } = require('./salmon.js');
-const { sql, db } = require("./.database/sqlite.js")
+const { sql } = require("./.database/sqlite.js")
 
 const all_salmon = []
 
@@ -182,14 +182,14 @@ function blockChannel(message) {
   console.log("Hello World")
   let type = message.guild.channels.cache.get(channel).type
   if(type == 4) return message.reply('You can not block a catigory');  
-  sql.GET(db, 'blacklistChannels', 'channelID', 'channelID', channel).then(async row => {
+  sql.GET('blacklistChannels', 'channelID', 'channelID', channel).then(async row => {
     if(row){
       console.log("found")
-      sql.DELETE(db, 'blacklistChannels', 'channelID', channel)
+      sql.DELETE('blacklistChannels', 'channelID', channel)
       message.reply(`<#${channel}> is now unblocked`)
     } else {
       console.log("not found")
-      await sql.INSERT(db, 'blacklistChannels', ['serverId', 'channelID'], [ message.guild.id, channel ])
+      await sql.INSERT('blacklistChannels', ['serverId', 'channelID'], [ message.guild.id, channel ])
       message.reply(`<#${channel}> is now blocked`)
     }
   })
@@ -409,7 +409,7 @@ async function rotationMessage(mode, session = 0){
 
 
 async function item(message){
-  let userInv = await sql.GET(db, 'invintory', ['*'], 'id', message.user.id)
+  let userInv = await sql.GET('invintory', ['*'], 'id', message.user.id)
   let items = data.shop_items.filter(item => !item.use_splat)
   for(i in items){
     if(items[i].value === functions.getNthValue(message, 0)){
@@ -419,7 +419,7 @@ async function item(message){
           if(userInv.WB >= 1){
             spawnSalmon(message)
             userInv.WB -= 1
-            sql.UPDATE(db, 'invintory', ['WB'], 'id', message.user.id, [userInv.WB])
+            sql.UPDATE('invintory', ['WB'], 'id', message.user.id, [userInv.WB])
           } else {
             message.reply("You don't have enough Wave Breakers")
           }
@@ -513,9 +513,9 @@ async function buy(message){
   let value = functions.getNthValue(message, 0)
   let id = message.user.id
   let shop_items = data.shop_items
-  let userInv = await sql.GET(db, 'invintory', ['*'], 'id', id)
+  let userInv = await sql.GET('invintory', ['*'], 'id', id)
   if(userInv === null) {
-    userInv = await sql.INSERT(db, 'invintory', ['id'], id)
+    userInv = await sql.INSERT('invintory', ['id'], id)
     message.reply("Please try again...")
   } else {
     let goldeggemoji = data.emoji.goldeggemoji

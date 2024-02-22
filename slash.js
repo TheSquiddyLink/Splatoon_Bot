@@ -2,7 +2,7 @@ const { client } = require('./data.js')
 const [ commands ] = require('./commands.js')
 const { functions } = require('./data.js')
 const { spawnSalmon } = require('./salmon.js')
-const { sql, db } = require("./.database/sqlite.js")
+const { sql } = require("./.database/sqlite.js")
 
 
 client.on('ready', async () => {
@@ -48,7 +48,7 @@ client.on('interactionCreate', async (interaction) => {
 })
 
 async function checkBlockedList(interaction) {
-    let channel = await sql.GET(db, 'blacklistChannels', 'channelID', 'channelID', interaction.channelId)
+    let channel = await sql.GET('blacklistChannels', 'channelID', 'channelID', interaction.channelId)
     console.log(channel)
     if(channel) {
         console.log("Blocked")
