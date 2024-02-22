@@ -452,26 +452,16 @@ function stats(message){
  */
 
 async function inv(message){
+  let userInv = await sql.GET('invintory', ['*'], 'id', message.user.id)
   let inv = ""
-  let all_items = data.shop_items
-  let userData = await functions.readData(data.json.user)
-
-  for(i in all_items){
-    let ammount = userData.shop_items[all_items[i].value][message.user.id]
-    if(ammount === undefined){
-      ammount = 0
-    }
-    inv = `${inv}${all_items[i].emoji} ${all_items[i].name} | ${all_items[i].value} | **${ammount}**\n`
+  for (el of data.shop_items){
+    inv += `${el.emoji} ${el.name} | ${userInv[el.value]}\n`
   }
-
-  let goldeggammt = userData.goldeneggs[message.user.id]
-  
   let inv_scales = ""
-  for(i in data.scales){
-    let ammount = userData.scales[data.scales[i].name][message.user.id]
-    inv_scales = `${inv_scales}${data.scales[i].emoji} ${data.scales[i].name} | **${ammount}**\n`
+  for(el of data.scales){
+    inv_scales += `${el.emoji} ${el.name} | ${userInv[el.db]}\n`
   }
-
+  let goldeggammt = userInv.goldenEggs
   let embed = new EmbedBuilder()
   .setTitle(`Your Inventory`)
   .setDescription(`This shows you your items and scales ammount`)

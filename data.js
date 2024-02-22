@@ -27,9 +27,9 @@ const data = {
     {name: "Wave Breaker", value: "WB", use_splat: false, emoji: "<:wavebreaker:1145026119389679716>", cost: 2, mult: 4, description: "Using this will force a salmon to spawn. !this will not bypass the cooldown!", file: './tmp/shop_items/instant_summon'}
   ],
   scales: [
-    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>"},
-    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>"},
-    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>"},
+    {name: "Bronze", emoji: "<:bronze_scale:1148995068548632576>", db: 'bronzeScale'},
+    {name: "Silver", emoji: "<:silver_scale:1148995066677952674>", db: 'silverScale'},
+    {name: "Gold", emoji: "<:gold_scale:1148995064379482302>", db: 'goldScale'},
   ],
 
   salmon: {
