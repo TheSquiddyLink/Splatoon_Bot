@@ -542,8 +542,9 @@ async function shop(message){
     shopmessage = `${shopmessage}${Number(i) + 1}: ${shop_items[i].emoji} ${shop_items[i].name} X${shop_items[i].mult} (${shop_items[i].value}) | ${data.emoji.goldeggemoji} ${shop_items[i].cost}\n`
   }
   
-  let value = await functions.readData(data.json.user).goldeneggs[message.user.id]
-    let embed = new EmbedBuilder()
+  let value = await sql.GET('invintory', ['goldenEggs'], 'id', message.user.id)
+  value = value.goldenEggs
+  let embed = new EmbedBuilder()
     .setTitle(`${data.emoji.staff} Welcome to the shop!`)
     .setDescription(`You currently have ${data.emoji.goldeggemoji} **${value}**`)
     .setColor(0x00FFFF)
