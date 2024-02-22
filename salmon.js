@@ -34,7 +34,15 @@ class salmon {
         this.goldenEgg = Math.round(Math.random() * 3)
         salmonTypes = data.salmon.boss_salmon
       }
-      this.salmonID = Math.round(Math.random() * (salmonTypes.length - 1))
+      // TODO: Salmon ID based on Weight (chance value)
+      const cumulativeWeights = [];
+      let totalWeight = 0;
+      for (const item of salmonTypes) {
+        totalWeight += item.chance;
+        cumulativeWeights.push(totalWeight);
+      }
+      const randomWeight = Math.random() * totalWeight
+      this.salmonID = cumulativeWeights.findIndex((weight) => randomWeight < weight)
       this.salmonData = salmonTypes[this.salmonID]
 
       if(this.type === "boss") this.goldenEgg += salmonTypes[this.salmonID].bonus
